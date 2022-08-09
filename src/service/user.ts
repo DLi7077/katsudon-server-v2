@@ -72,6 +72,37 @@ async function follow(attributes: UserAttributes): Promise<any> {
 }
 
 /**
+ * @description updates follow list for users due to a follow
+ * @param {UserAttributes} attributes - The fields to update with
+ * @returns {Promise<any>} Promise of an updated document
+ */
+async function unfollow(attributes: UserAttributes): Promise<any> {
+  const follower = _.get(attributes, "follower");
+  const following = _.get(attributes, "following");
+
+  //safety logic, prevent follow if already following
+  //add following to following list
+  //add follower to follower list
+  const unfollow_success = await Models.User.findByIdAndUpdate(
+    { _id: follower },
+    { $pull: { following: following } },
+    { new: true, upsert: true }
+  )
+    .then(async (addedFollowing: any) => {
+      const addedToFollowers = await Models.User.findByIdAndUpdate(
+        { _id: following },
+        { $pull: { followers: follower } },
+        { new: true, upsert: true }
+      );
+
+      return [addedFollowing, addedToFollowers];
+    })
+    .catch();
+
+  return unfollow_success;
+}
+
+/**
  * @description finds a user by email
  * @param {string} email - The email to look for
  * @returns {Promise<any>} Promise of a user document
@@ -101,6 +132,7 @@ export default {
   create,
   update,
   follow,
+  unfollow,
   findByEmail,
   findById,
   findAll,

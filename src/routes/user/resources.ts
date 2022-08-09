@@ -102,6 +102,46 @@ export async function followUser(
 
   return next();
 }
+/**
+ * @description Follows a user
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function unfollowUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const follower = req.body.follower;
+  const following = req.body.following;
+
+  const followerModel = await UserService.findById(follower);
+  const followingModel = await UserService.findById(following);
+
+  const userNotFound = (user_id: any) => {
+    const error = new NotFoundResponse(`${user_id} does not exist`);
+    return error;
+  };
+
+  if (!followerModel) {
+    return next(userNotFound(follower));
+  }
+  if (!followingModel) {
+    return next(userNotFound(following));
+  }
+
+  await UserService.unfollow(req.body)
+    .then((users: any) => {
+      req.body.message = `${users[0].username} unfollowed ${users[1].username}`;
+      req.body.count = users.length;
+      req.body.rows = users;
+    })
+    .catch(next);
+
+  return next();
+}
 
 //--------------------GET---------------------
 
