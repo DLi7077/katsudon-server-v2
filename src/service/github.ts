@@ -1,7 +1,7 @@
 import axios from "axios";
 
-/**
- * @description Extracts file names from a github repository
+/**`
+ * @description Extracts file names from a github repository`
  * @param {string} repository - the name of the repository
  * @returns {Promise<any>} the count and files
  */
@@ -31,8 +31,9 @@ async function getRepositoryFiles(repository: string): Promise<any> {
 async function getSolution(repository: string, fileName: string): Promise<any> {
   const fileRegex = /.+(?=\.)/;
   const folderName = fileRegex.exec(fileName) ?? [];
-  const url = `https://raw.githubusercontent.com/${repository}/master/${folderName[0]}/${fileName}`;
   //https://raw.githubusercontent.com/DLi7077/Leetcode-Solutions/master/1-two-sum/1-two-sum.cpp
+  const url = `https://raw.githubusercontent.com/${repository}/master/${folderName[0]}/${fileName}`;
+
   return await axios.get(url);
 }
 

@@ -3,10 +3,12 @@ import express from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import routes from "./routes";
+import bodyParser from "body-parser";
 dotenv.config();
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
 
 const port: any = process.env.PORT || 3001;
 app.listen(port, () => {
