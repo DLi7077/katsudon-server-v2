@@ -1,43 +1,80 @@
 import axios from "axios";
+import _ from "lodash";
+import * as dotenv from "dotenv";
+dotenv.config();
 
-/**`
+//prepares the api request for github
+const githubRequest = (url: string) => {
+  const request: any = {
+    method: "get",
+    url: url,
+    headers: {
+      Authorization: `token ${process.env.GITHUB_AUTH_TOKEN}`,
+    },
+  };
+  return request;
+};
+
+/**
  * @description Extracts file names from a github repository`
  * @param {string} repository - the name of the repository
  * @returns {Promise<any>} the count and files
  */
-//https://stackoverflow.com/questions/2403122/regular-expression-to-extract-text-between-square-brackets
-async function getRepositoryFiles(repository: string): Promise<any> {
-  const github_url = `https://github.com/${repository}`;
-  const solutions: string[] = await axios
-    .get(github_url)
-    .then((res: any) => {
-      return res.status === 200 ? res.data : "";
-    })
-    .then((html) => {
-      const fileLinkRegex = /"js-navigation-open Link--primary".+\>(.*?)\<\/a/g;
-      const matches = [...html.matchAll(fileLinkRegex)];
-      const fileTitles = matches.map((match) => {
-        return match[1];
-      });
-      return fileTitles;
+async function getRepositoryContent(
+  githubName: string,
+  repository: string
+): Promise<any> {
+  const github_url = `https://api.github.com/repos/${githubName}/${repository}/contents`;
+  const request: any = githubRequest(github_url);
+
+  const repoSolutions: any[] = await axios(request).then((res: any) => {
+    const solutions = _.map(res.data, (folderDetails) => {
+      return {
+        name: _.get(folderDetails, "name"),
+        url: _.get(folderDetails, "url"),
+      };
     });
+    return solutions;
+  });
 
   return {
-    count: solutions.length ?? 0,
-    rows: solutions ?? [],
+    count: repoSolutions.length ?? 0,
+    rows: repoSolutions ?? [],
   };
 }
 
-async function getSolution(repository: string, fileName: string): Promise<any> {
-  const fileRegex = /.+(?=\.)/;
-  const folderName = fileRegex.exec(fileName) ?? [];
-  //https://raw.githubusercontent.com/DLi7077/Leetcode-Solutions/master/1-two-sum/1-two-sum.cpp
-  const url = `https://raw.githubusercontent.com/${repository}/master/${folderName[0]}/${fileName}`;
+/**
+ * @description Navigates to solution folder and fetches content for each file
+ * @param {string} url - the name of the repository
+ * @returns {Promise<any>} the count and files
+ */
+async function getSolutions(url: any): Promise<any> {
+  const request: any = githubRequest(url);
+  const repoFolderFiles: any[] = await axios(request).then(
+    (res: any) => res.data
+  );
 
-  return await axios.get(url);
+  const fileContent = await Promise.all(
+    _.map(repoFolderFiles, async (fileContent) => {
+      const { name, download_url } = fileContent;
+      const solution: string = await axios
+        .get(download_url)
+        .then((res: any) => res.data);
+
+      return {
+        file_name: name,
+        solution: solution,
+      };
+    })
+  );
+
+  return {
+    count: fileContent.length,
+    rows: fileContent,
+  };
 }
 
 export default {
-  getRepositoryFiles,
-  getSolution,
+  getRepositoryContent,
+  getSolutions,
 };

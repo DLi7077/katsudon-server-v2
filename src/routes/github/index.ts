@@ -1,9 +1,9 @@
 import express from "express";
-import { getRepositoryFiles, getSolution } from "./resources";
+import { getRepositoryContent, getSolutions, presentFiles } from "./resources";
 
 const router = express.Router();
 
-router.get("/repository-files", getRepositoryFiles);
-router.get("/solution-file", getSolution);
+router.get("/repository-files", getRepositoryContent, presentFiles);
+router.get("/solution-file", getSolutions, presentFiles);
 
 export default router;
