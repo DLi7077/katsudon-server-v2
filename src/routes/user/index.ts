@@ -4,16 +4,19 @@ import {
   updateUser,
   followUser,
   unfollowUser,
+  login,
   findUserByEmail,
   findAllUsers,
   presentUser,
   presentAll,
+  presentLogin,
 } from "./resources";
 
 const router = express.Router();
 
 router.get("/find-by-email", findUserByEmail, presentUser);
 router.get("/all", findAllUsers, presentAll);
+router.get("/login", login, presentLogin);
 
 router.post("/create", createUser, presentUser);
 router.post("/update", updateUser, presentUser);

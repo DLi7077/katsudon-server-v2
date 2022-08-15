@@ -3,6 +3,7 @@ import Models from "../database";
 import { UserAttributes } from "../database/models/user";
 import Auth from "../utils/Auth";
 import { ObjectId } from "mongoose";
+
 /**
  * @description Creates a new user
  * @param {UserAttributes} attributes - Attributes containing a password
