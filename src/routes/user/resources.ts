@@ -6,6 +6,7 @@ import {
 import _ from "lodash";
 import UserService from "../../service/user";
 import UserPresenter from "../../presenters/user";
+import bcrypt from "bcrypt";
 
 //-----------------POST----------------------
 /**
@@ -33,7 +34,7 @@ export async function createUser(
       req.body = user.toJSON();
     })
     .catch(next);
-    
+
   return next();
 }
 
@@ -103,6 +104,7 @@ export async function followUser(
 
   return next();
 }
+
 /**
  * @description Follows a user
  * @param {Request} req - the HTTP request object
@@ -145,6 +147,48 @@ export async function unfollowUser(
 }
 
 //--------------------GET---------------------
+
+/**
+ * @description logs in user using email and password
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function login(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const email: any = _.get(req.headers, "email");
+  const user: any = await UserService.findByEmail(email).then((user: any) => {
+    if (!user) {
+      req.body = {
+        status: "no matched user",
+        user_id: null,
+      };
+      return next();
+    }
+    return user;
+  });
+
+  const incoming_password: any = _.get(req.headers, "password");
+  const expected_password: any = _.get(user, "password");
+  bcrypt.compare(incoming_password, expected_password, (err, result) => {
+    if (err || !result) {
+      req.body = {
+        status: "incorrect password",
+        user_id: null,
+      };
+      return next(err);
+    }
+    req.body = {
+      status: "Successfully logged in!",
+      user_id: _.get(user, "_id"),
+    };
+    return next();
+  });
+}
 
 /**
  * @description Finds a user by email
@@ -218,5 +262,13 @@ export function presentAll(req: Request, res: Response): void {
     message: req.body.message ?? "",
     count: req.body.count,
     users: UserPresenter.presentAll(req.body.rows),
+  });
+}
+
+export function presentLogin(req: Request, res: Response): void {
+  console.log(req.body);
+  res.status(200);
+  res.json({
+    user: UserPresenter.presentLogin(req.body),
   });
 }
