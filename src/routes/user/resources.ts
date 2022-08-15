@@ -33,6 +33,7 @@ export async function createUser(
       req.body = user.toJSON();
     })
     .catch(next);
+    
   return next();
 }
 

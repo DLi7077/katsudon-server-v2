@@ -8,7 +8,7 @@ export interface UserAttributes {
   verified: boolean;
   following: ObjectId[];
   followers: ObjectId[];
-  leetcode_repository?: string;
+  solved: number[];
   profile_picture_url?: string;
   created_at: Date;
   updated_at: Date;
@@ -40,10 +40,6 @@ export const userSchema: Schema<UserAttributes> = new Schema<UserAttributes>({
     unique: true,
     index: true,
   },
-  leetcode_repository: {
-    type: String,
-    required: false,
-  },
   profile_picture_url: {
     type: String,
     required: false,
@@ -54,6 +50,10 @@ export const userSchema: Schema<UserAttributes> = new Schema<UserAttributes>({
   },
   followers: {
     type: [mongoose.Schema.Types.ObjectId],
+    required: true,
+  },
+  solved: {
+    type: [Number],
     required: true,
   },
   verified: {

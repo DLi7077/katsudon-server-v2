@@ -122,6 +122,7 @@ async function findById(user_id: ObjectId): Promise<any> {
  */
 async function findAll(queryParams: any): Promise<any> {
   const users = await Models.User.find(queryParams);
+
   return {
     count: users.length,
     rows: users,
