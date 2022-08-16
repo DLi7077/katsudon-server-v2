@@ -12,25 +12,31 @@ async function create(attributes: SolutionAttributes): Promise<any> {
   const updatedProblemAttributes = {
     id: _.get(attributes, "problem_id"),
     title: _.get(attributes, "problem_title"),
+    url: _.get(attributes, "problem_url"),
     difficulty: _.get(attributes, "problem_difficulty"),
     description: _.get(attributes, "problem_description"),
     tags: _.get(attributes, "problem_tags"),
   };
-  await Models.Problem.findOneAndUpdate(
-    {
-      id: updatedProblemAttributes.id,
-    },
-    updatedProblemAttributes,
-    { upsert: true }
-  );
+  const problemExists = await Models.Problem.exists({
+    id: updatedProblemAttributes.id,
+  });
+
+  //create problem if doesn't exist
+  if (!problemExists) {
+    await Models.Problem.findOneAndUpdate(
+      {
+        id: updatedProblemAttributes.id,
+      },
+      updatedProblemAttributes,
+      { upsert: true }
+    );
+  }
 
   //create the solution
   const createdSolution = await Models.Solution.create({
     ...attributes,
     created_at: new Date(),
   });
-
-  //add solution to 
 
   return createdSolution;
 }

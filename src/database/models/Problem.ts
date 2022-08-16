@@ -6,6 +6,7 @@ export interface ProblemAttributes {
   _id: ObjectId;
   id: number;
   title: string;
+  url: string;
   difficulty?: string;
   description: string;
   tags?: string[];
@@ -27,6 +28,11 @@ export const ProblemSchema: Schema<ProblemAttributes> =
       unique: true,
     },
     title: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    url: {
       type: String,
       required: true,
       unique: true,
