@@ -3,6 +3,7 @@ import Models from "../database";
 import { UserAttributes } from "../database/models/user";
 import Auth from "../utils/Auth";
 import { ObjectId } from "mongoose";
+import { NotFoundResponse } from "http-errors-response-ts/lib";
 
 /**
  * @description Creates a new user
@@ -49,7 +50,6 @@ async function update(attributes: UserAttributes): Promise<any> {
 async function follow(attributes: UserAttributes): Promise<any> {
   const follower = _.get(attributes, "follower");
   const following = _.get(attributes, "following");
-
   //safety logic, prevent follow if already following
   //add following to following list
   //add follower to follower list
@@ -103,6 +103,21 @@ async function unfollow(attributes: UserAttributes): Promise<any> {
   return unfollow_success;
 }
 
+async function addProblemToSolved(
+  user_id: ObjectId,
+  problem_id: number
+): Promise<any> {
+  const problemExists = await Models.Problem.findOne({ id: problem_id });
+  if (!problemExists) {
+    return new NotFoundResponse(`problem #${problem_id} does not exist`);
+  }
+
+  return await Models.User.findByIdAndUpdate(
+    { _id: user_id },
+    { $addToSet: { solved: problem_id } }
+  );
+}
+
 /**
  * @description finds a user by email
  * @param {string} email - The email to look for
@@ -135,6 +150,7 @@ export default {
   update,
   follow,
   unfollow,
+  addProblemToSolved,
   findByEmail,
   findById,
   findAll,
