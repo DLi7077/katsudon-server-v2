@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Models from "../database";
-import { UserAttributes } from "../database/models/user";
+import { UserAttributes } from "../database/models/User";
 import Auth from "../utils/Auth";
 import { ObjectId } from "mongoose";
 import { NotFoundResponse } from "http-errors-response-ts/lib";

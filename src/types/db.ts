@@ -1,5 +1,5 @@
 import { Model, Mongoose } from "mongoose";
-import { UserAttributes } from "../database/models/user";
+import { UserAttributes } from "../database/models/User";
 import { ProblemAttributes } from "../database/models/Problem";
 import { SolutionAttributes } from "../database/models/Solution";
 

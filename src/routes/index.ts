@@ -15,15 +15,14 @@ export default async function routes(app: Express) {
   app.use("/api/solution", solutionAPI);
 
   const MONGODB_URI: any = process.env.MONGODB_URI;
-  Models.mongoose
-    .connect(MONGODB_URI)
-    .then(() => {
+  Models.mongoose.connect(MONGODB_URI).then(
+    () => {
       console.log("Connected to MongoDB!");
-    })
-    .catch(() => {
-      console.log("couldnt connect");
-    });
-
+    },
+    (err: any) => {
+      console.log(`Couldnt connect to MongoDB...${err}`);
+    }
+  );
   //display all endpoints
   console.table(listEndpoints(app));
 }
