@@ -14,9 +14,9 @@ export default async function routes(app: Express) {
   app.use("/api/problem", problemAPI);
   app.use("/api/solution", solutionAPI);
 
-  const mongo_url: any = process.env.MONGO_URL;
+  const MONGODB_URI: any = process.env.MONGODB_URI;
   Models.mongoose
-    .connect(mongo_url)
+    .connect(MONGODB_URI)
     .then(() => {
       console.log("Connected to MongoDB!");
     })
