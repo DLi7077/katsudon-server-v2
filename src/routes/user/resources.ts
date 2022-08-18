@@ -160,7 +160,7 @@ export async function login(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const email: any = _.get(req.headers, "email");
+  const email: any = _.get(req.body, "email");
   const user: any = await UserService.findByEmail(email).then((user: any) => {
     if (!user) {
       req.body = {
@@ -172,7 +172,7 @@ export async function login(
     return user;
   });
 
-  const incoming_password: any = _.get(req.headers, "password");
+  const incoming_password: any = _.get(req.body, "password");
   const expected_password: any = _.get(user, "password");
   bcrypt.compare(incoming_password, expected_password, (err, result) => {
     if (err || !result) {
@@ -184,7 +184,7 @@ export async function login(
     }
     req.body = {
       status: "Successfully logged in!",
-      user_id: _.get(user, "_id"),
+      user: user,
     };
     return next();
   });
@@ -266,9 +266,8 @@ export function presentAll(req: Request, res: Response): void {
 }
 
 export function presentLogin(req: Request, res: Response): void {
-  console.log(req.body);
   res.status(200);
   res.json({
-    user: UserPresenter.presentLogin(req.body),
+    user: UserPresenter.present(req.body.user),
   });
 }

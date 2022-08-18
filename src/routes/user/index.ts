@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.get("/find-by-email", findUserByEmail, presentUser);
 router.get("/all", findAllUsers, presentAll);
-router.get("/login", login, presentLogin);
+router.post("/login", login, presentLogin);
 
 router.post("/create", createUser, presentUser);
 router.post("/update", updateUser, presentUser);
