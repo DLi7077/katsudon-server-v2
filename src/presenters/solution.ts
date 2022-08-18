@@ -1,6 +1,6 @@
-import _ from "lodash";
+import _ from 'lodash';
 
-//Presents an posted solution
+// Presents an posted solution
 function present(solution: any): any {
   return solution;
 }
@@ -11,5 +11,5 @@ function presentAll(solutions: any[]): any[] {
 
 export default {
   present,
-  presentAll,
+  presentAll
 };

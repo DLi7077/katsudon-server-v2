@@ -1,4 +1,5 @@
-import mongoose, { Schema, Model, ObjectId } from "mongoose";
+/* eslint-disable camelcase */
+import mongoose, { Schema, Model, ObjectId } from 'mongoose';
 
 export interface UserAttributes {
   _id: ObjectId;
@@ -21,57 +22,57 @@ export const userSchema: Schema<UserAttributes> = new Schema<UserAttributes>({
   _id: {
     type: Schema.Types.ObjectId,
     required: true,
-    auto: true,
+    auto: true
   },
   username: {
     type: String,
     required: true,
     unique: true,
     index: true,
-    partialFilterExpression: { verified: true },
+    partialFilterExpression: { verified: true }
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    index: true,
+    index: true
   },
   profile_picture_url: {
     type: String,
-    required: false,
+    required: false
   },
   following: {
     type: [mongoose.Schema.Types.ObjectId],
-    required: true,
+    required: true
   },
   followers: {
     type: [mongoose.Schema.Types.ObjectId],
-    required: true,
+    required: true
   },
   solved: {
     type: [Number],
-    required: true,
+    required: true
   },
   verified: {
     type: Boolean,
-    required: true,
+    required: true
   },
   created_at: {
     type: Date,
-    required: true,
+    required: true
   },
   updated_at: {
     type: Date,
-    required: false,
+    required: false
   },
   deleted_at: {
     type: Date,
-    required: false,
-  },
+    required: false
+  }
 });
 
 userSchema.index(
@@ -79,6 +80,6 @@ userSchema.index(
   { unique: true, partialFilterExpression: { verified: true } }
 );
 
-const UserModel: Model<UserAttributes> = mongoose.model("User", userSchema);
+const UserModel: Model<UserAttributes> = mongoose.model('User', userSchema);
 
 export default UserModel;

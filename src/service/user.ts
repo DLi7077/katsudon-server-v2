@@ -1,9 +1,10 @@
-import _ from "lodash";
-import Models from "../database";
-import { UserAttributes } from "../database/models/User";
-import Auth from "../utils/Auth";
-import { ObjectId } from "mongoose";
-import { NotFoundResponse } from "http-errors-response-ts/lib";
+/* eslint-disable camelcase */
+import _ from 'lodash';
+import { ObjectId } from 'mongoose';
+import { NotFoundResponse } from 'http-errors-response-ts/lib';
+import Models from '../database';
+import { UserAttributes } from '../database/models/User';
+import Auth from '../utils/Auth';
 
 /**
  * @description Creates a new user
@@ -19,7 +20,7 @@ async function create(attributes: UserAttributes): Promise<any> {
     followers: [],
     following: [],
     verified: false,
-    created_at: new Date(),
+    created_at: new Date()
   });
 }
 
@@ -32,13 +33,13 @@ async function update(attributes: UserAttributes): Promise<any> {
   const { _id } = attributes;
 
   const updateAttributes = {
-    ..._.omit(attributes, "_id"),
-    updated_at: new Date(),
+    ..._.omit(attributes, '_id'),
+    updated_at: new Date()
   };
 
-  return Models.User.findByIdAndUpdate({ _id: _id }, updateAttributes, {
+  return Models.User.findByIdAndUpdate({ _id }, updateAttributes, {
     runValidators: true,
-    new: true,
+    new: true
   });
 }
 
@@ -48,14 +49,14 @@ async function update(attributes: UserAttributes): Promise<any> {
  * @returns {Promise<any>} Promise of an updated document
  */
 async function follow(attributes: UserAttributes): Promise<any> {
-  const follower = _.get(attributes, "follower");
-  const following = _.get(attributes, "following");
-  //safety logic, prevent follow if already following
-  //add following to following list
-  //add follower to follower list
+  const follower = _.get(attributes, 'follower');
+  const following = _.get(attributes, 'following');
+  // safety logic, prevent follow if already following
+  // add following to following list
+  // add follower to follower list
   const follow_success = await Models.User.findByIdAndUpdate(
     { _id: follower },
-    { $addToSet: { following: following } },
+    { $addToSet: { following } },
     { new: true, upsert: true }
   )
     .then(async (addedFollowing: any) => {
@@ -78,15 +79,15 @@ async function follow(attributes: UserAttributes): Promise<any> {
  * @returns {Promise<any>} Promise of an updated document
  */
 async function unfollow(attributes: UserAttributes): Promise<any> {
-  const follower = _.get(attributes, "follower");
-  const following = _.get(attributes, "following");
+  const follower = _.get(attributes, 'follower');
+  const following = _.get(attributes, 'following');
 
-  //safety logic, prevent follow if already following
-  //add following to following list
-  //add follower to follower list
+  // safety logic, prevent follow if already following
+  // add following to following list
+  // add follower to follower list
   const unfollow_success = await Models.User.findByIdAndUpdate(
     { _id: follower },
-    { $pull: { following: following } },
+    { $pull: { following } },
     { new: true, upsert: true }
   )
     .then(async (addedFollowing: any) => {
@@ -112,7 +113,7 @@ async function addProblemToSolved(
     return new NotFoundResponse(`problem #${problem_id} does not exist`);
   }
 
-  return await Models.User.findByIdAndUpdate(
+  return Models.User.findByIdAndUpdate(
     { _id: user_id },
     { $addToSet: { solved: problem_id } }
   );
@@ -141,7 +142,7 @@ async function findAll(queryParams: any): Promise<any> {
 
   return {
     count: users.length,
-    rows: users,
+    rows: users
   };
 }
 
@@ -153,5 +154,5 @@ export default {
   addProblemToSolved,
   findByEmail,
   findById,
-  findAll,
+  findAll
 };

@@ -1,5 +1,5 @@
-import mongoose, { Schema, Model, ObjectId, mongo } from "mongoose";
-import _ from "lodash";
+/* eslint-disable camelcase */
+import mongoose, { Schema, Model, ObjectId } from 'mongoose';
 
 export interface SolutionAttributes {
   _id: ObjectId;
@@ -18,44 +18,44 @@ export const SolutionSchema: Schema<SolutionAttributes> = new Schema({
   _id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    auto: true,
+    auto: true
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    required: false,
+    required: false
   },
   problem_id: {
     type: Number,
-    required: true,
+    required: true
   },
   solution_language: {
     type: String,
-    required: true,
+    required: true
   },
   solution_code: {
     type: String,
-    required: true,
+    required: true
   },
   runtime_ms: {
     type: Number,
-    required: true,
+    required: true
   },
   memory_usage_mb: {
     type: Number,
-    required: true,
+    required: true
   },
   created_at: {
     type: Date,
-    required: true,
-  },
+    required: true
+  }
 });
 
 SolutionSchema.index({
-  solution_language: 1,
+  solution_language: 1
 });
 
 const SolutionModel: Model<SolutionAttributes> = mongoose.model(
-  "Solution",
+  'Solution',
   SolutionSchema
 );
 

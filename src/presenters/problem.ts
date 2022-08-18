@@ -1,6 +1,6 @@
-import _ from "lodash";
+import _ from 'lodash';
 
-//Presents an upserted problem
+// Presents an upserted problem
 function present(problem: any): any {
   return problem;
 }
@@ -11,5 +11,5 @@ function presentAll(problems: any[]): any[] {
 
 export default {
   present,
-  presentAll,
+  presentAll
 };
