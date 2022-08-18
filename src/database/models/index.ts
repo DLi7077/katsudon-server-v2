@@ -1,5 +1,5 @@
 import { DatabaseModels } from "../../types/db";
-import UserModel from "./user";
+import UserModel from "./User";
 import ProblemModel from "./Problem";
 import SolutionModel from "./Solution";
 
