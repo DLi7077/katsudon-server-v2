@@ -1,1 +1,1 @@
-export const ProblemDifficulties = ["Easy", "Medium", "Hard"];
+export default ['Easy', 'Medium', 'Hard'];

@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from "express";
-import _ from "lodash";
-import SolutionService from "../../service/solution";
-import SolutionPresenter from "../../presenters/solution";
-import UserService from "../../service/user";
-import Models from "../../database";
+/* eslint-disable camelcase */
+import { Request, Response, NextFunction } from 'express';
+import _ from 'lodash';
+import SolutionService from '../../service/solution';
+import SolutionPresenter from '../../presenters/solution';
+import UserService from '../../service/user';
+import Models from '../../database';
 
 /**
  * @description Creates a solution
@@ -17,8 +18,8 @@ export async function createSolution(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  //start transaction - create solution and problem
-  //add solution to user's solved list
+  // start transaction - create solution and problem
+  // add solution to user's solved list
   const session = await Models.mongoose.startSession();
   session.startTransaction();
 
@@ -30,8 +31,8 @@ export async function createSolution(
       })
       .catch(next);
 
-    const solver_id = _.get(createdSolution, "user_id");
-    const question_id = _.get(createdSolution, "problem_id");
+    const solver_id = _.get(createdSolution, 'user_id');
+    const question_id = _.get(createdSolution, 'problem_id');
     await UserService.addProblemToSolved(solver_id, question_id);
 
     await session.commitTransaction();
@@ -42,7 +43,7 @@ export async function createSolution(
 
     return next(err);
   }
-  
+
   return next();
 }
 
@@ -55,6 +56,6 @@ export async function createSolution(
 export function present(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    solution: SolutionPresenter.present(req.body.solution),
+    solution: SolutionPresenter.present(req.body.solution)
   });
 }

@@ -1,14 +1,16 @@
-import { Request, Response, NextFunction } from "express";
+/* eslint-disable camelcase  */
+/* eslint-disable no-underscore-dangle */
+import { Request, Response, NextFunction } from 'express';
 import {
   ConflictResponse,
-  NotFoundResponse,
-} from "http-errors-response-ts/lib";
-import _ from "lodash";
-import UserService from "../../service/user";
-import UserPresenter from "../../presenters/user";
-import bcrypt from "bcrypt";
+  NotFoundResponse
+} from 'http-errors-response-ts/lib';
+import _ from 'lodash';
+import bcrypt from 'bcrypt';
+import UserService from '../../service/user';
+import UserPresenter from '../../presenters/user';
 
-//-----------------POST----------------------
+// -----------------POST----------------------
 /**
  * @description Creates a user
  * @param {Request} req - the HTTP request object
@@ -24,7 +26,7 @@ export async function createUser(
   const existingEmail = await UserService.findByEmail(req.body.email);
   if (existingEmail) {
     const error = new ConflictResponse(
-      "This email already has an associated account"
+      'This email already has an associated account'
     );
     return next(error);
   }
@@ -52,7 +54,7 @@ export async function updateUser(
 ): Promise<void> {
   const user_id = req.body._id;
   if (!user_id) {
-    const error = new ConflictResponse("No _id detected");
+    const error = new ConflictResponse('No _id detected');
     return next(error);
   }
   await UserService.update(req.body)
@@ -76,8 +78,8 @@ export async function followUser(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const follower = req.body.follower;
-  const following = req.body.following;
+  const { follower } = req.body;
+  const { following } = req.body;
 
   const followerModel = await UserService.findById(follower);
   const followingModel = await UserService.findById(following);
@@ -117,8 +119,8 @@ export async function unfollowUser(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const follower = req.body.follower;
-  const following = req.body.following;
+  const { follower } = req.body;
+  const { following } = req.body;
 
   const followerModel = await UserService.findById(follower);
   const followingModel = await UserService.findById(following);
@@ -146,7 +148,7 @@ export async function unfollowUser(
   return next();
 }
 
-//--------------------GET---------------------
+// --------------------GET---------------------
 
 /**
  * @description logs in user using email and password
@@ -160,31 +162,33 @@ export async function login(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const email: any = _.get(req.body, "email");
-  const user: any = await UserService.findByEmail(email).then((user: any) => {
-    if (!user) {
-      req.body = {
-        status: "no matched user",
-        user_id: null,
-      };
-      return next();
+  const email: any = _.get(req.body, 'email');
+  const user: any = await UserService.findByEmail(email).then(
+    (userDetails: any) => {
+      if (!userDetails) {
+        req.body = {
+          status: 'no matched user',
+          user_id: null
+        };
+        return next();
+      }
+      return user;
     }
-    return user;
-  });
+  );
 
-  const incoming_password: any = _.get(req.body, "password");
-  const expected_password: any = _.get(user, "password");
+  const incoming_password: any = _.get(req.body, 'password');
+  const expected_password: any = _.get(user, 'password');
   bcrypt.compare(incoming_password, expected_password, (err, result) => {
     if (err || !result) {
       req.body = {
-        status: "incorrect password",
-        user_id: null,
+        status: 'incorrect password',
+        user_id: null
       };
       return next(err);
     }
     req.body = {
-      status: "Successfully logged in!",
-      user: user,
+      status: 'Successfully logged in!',
+      user
     };
     return next();
   });
@@ -202,16 +206,13 @@ export async function findUserByEmail(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const email: any = _.get(req.query, "email") ?? "";
-  await UserService.findByEmail(email)
-    .then((user: any) => {
-      if (!user) {
-        const noUserError = new NotFoundResponse("No associated account");
-        return next(noUserError);
-      }
-      req.body = user.toJSON();
-    })
-    .catch(next);
+  const email: any = _.get(req.query, 'email') ?? '';
+  const foundUser = await UserService.findByEmail(email).catch(next);
+  if (!foundUser) {
+    const noUserError = new NotFoundResponse('No associated account');
+    return next(noUserError);
+  }
+  req.body = foundUser.toJSON();
 
   return next();
 }
@@ -246,7 +247,7 @@ export async function findAllUsers(
 export function presentUser(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    user: UserPresenter.present(req.body),
+    user: UserPresenter.present(req.body)
   });
 }
 
@@ -259,15 +260,15 @@ export function presentUser(req: Request, res: Response): void {
 export function presentAll(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    message: req.body.message ?? "",
+    message: req.body.message ?? '',
     count: req.body.count,
-    users: UserPresenter.presentAll(req.body.rows),
+    users: UserPresenter.presentAll(req.body.rows)
   });
 }
 
 export function presentLogin(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    user: UserPresenter.present(req.body.user),
+    user: UserPresenter.present(req.body.user)
   });
 }

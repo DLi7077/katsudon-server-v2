@@ -1,6 +1,5 @@
-import Models from "../database";
-import { ProblemAttributes } from "../database/models/Problem";
-import _ from "lodash";
+import Models from '../database';
+import { ProblemAttributes } from '../database/models/Problem';
 
 /**
  * @description Creates a Problem
@@ -10,10 +9,9 @@ import _ from "lodash";
 async function create(attributes: ProblemAttributes): Promise<any> {
   return Models.Problem.findOneAndUpdate({ id: attributes.id }, attributes, {
     upsert: true,
-    new: true,
+    new: true
   });
 }
-
 
 /**
  * @description Retrieves all questions that match a query
@@ -25,11 +23,11 @@ async function findAll(queryParams: any): Promise<any> {
 
   return {
     count: problems.length,
-    rows: problems,
+    rows: problems
   };
 }
 
 export default {
   create,
-  findAll,
+  findAll
 };

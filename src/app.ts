@@ -1,15 +1,12 @@
-import _ from "lodash";
-import express from "express";
-import cors from "cors";
-import * as dotenv from "dotenv";
-import bodyParser from "body-parser";
-import routes from "./routes";
-dotenv.config();
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import routes from './routes';
 
 const app = express();
 app.use(
   cors({
-    origin: "*",
+    origin: '*'
   })
 );
 app.use(bodyParser.json());
@@ -21,5 +18,3 @@ app.listen(port, async () => {
 });
 
 routes(app);
-
-export default app;

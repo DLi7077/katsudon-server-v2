@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import _ from "lodash";
-import ProblemService from "../../service/problem";
-import ProblemPresenter from "../../presenters/problem";
+/* eslint-disable camelcase */
+import { Request, Response, NextFunction } from 'express';
+import ProblemService from '../../service/problem';
+import ProblemPresenter from '../../presenters/problem';
 
 /**
  * @description Creates a problem
@@ -49,7 +49,7 @@ export async function findProblems(
 export function present(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    problem: ProblemPresenter.present(req.body.problem),
+    problem: ProblemPresenter.present(req.body.problem)
   });
 }
 
@@ -57,6 +57,6 @@ export function presentAll(req: Request, res: Response): void {
   res.status(200);
   res.json({
     count: req.body.count,
-    problems: ProblemPresenter.presentAll(req.body.rows),
+    problems: ProblemPresenter.presentAll(req.body.rows)
   });
 }
