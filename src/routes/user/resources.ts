@@ -163,21 +163,11 @@ export async function login(
   next: NextFunction
 ): Promise<void> {
   const email: any = _.get(req.body, 'email');
-  const user: any = await UserService.findByEmail(email).then(
-    (userDetails: any) => {
-      if (!userDetails) {
-        req.body = {
-          status: 'no matched user',
-          user_id: null
-        };
-        return next();
-      }
-      return user;
-    }
-  );
+  const user: any = await UserService.findByEmail(email).catch(next);
 
   const incoming_password: any = _.get(req.body, 'password');
   const expected_password: any = _.get(user, 'password');
+  
   bcrypt.compare(incoming_password, expected_password, (err, result) => {
     if (err || !result) {
       req.body = {
@@ -190,6 +180,7 @@ export async function login(
       status: 'Successfully logged in!',
       user
     };
+
     return next();
   });
 }
