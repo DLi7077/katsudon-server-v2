@@ -14,6 +14,22 @@ async function create(attributes: ProblemAttributes): Promise<any> {
 }
 
 /**
+ * @description Adds a solver to the solved_by field for a problem
+ * @param {number} problemId the problem's ID as shown on leetcode
+ * @param {ObjectId} userId the solver's id
+ * @returns {Promise<any>} Promise of updated problem
+ */
+async function addSolver(problemId: number, userId: any): Promise<any> {
+  const updatedProblem = await Models.Problem.findOneAndUpdate(
+    { id: problemId },
+    { $addToSet: { solved_by: userId } },
+    { upsert: true, new: true }
+  );
+
+  return updatedProblem;
+}
+
+/**
  * @description Retrieves all questions that match a query
  * @param {SolutionAttributes} queryParams - the queries
  * @returns {Promise<any>} Promise of problems that match the query
@@ -29,5 +45,6 @@ async function findAll(queryParams: any): Promise<any> {
 
 export default {
   create,
+  addSolver,
   findAll
 };

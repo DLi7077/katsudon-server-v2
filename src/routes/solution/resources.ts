@@ -4,6 +4,7 @@ import _ from 'lodash';
 import SolutionService from '../../service/solution';
 import SolutionPresenter from '../../presenters/solution';
 import UserService from '../../service/user';
+import ProblemService from '../../service/problem';
 import Models from '../../database';
 
 /**
@@ -33,7 +34,8 @@ export async function createSolution(
 
     const solver_id = _.get(createdSolution, 'user_id');
     const question_id = _.get(createdSolution, 'problem_id');
-    await UserService.addProblemToSolved(solver_id, question_id);
+    await UserService.addProblemToSolved(solver_id, question_id).catch(next);
+    await ProblemService.addSolver(question_id, solver_id).catch(next);
 
     await session.commitTransaction();
     session.endSession();

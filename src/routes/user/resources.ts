@@ -167,7 +167,7 @@ export async function login(
 
   const incoming_password: any = _.get(req.body, 'password');
   const expected_password: any = _.get(user, 'password');
-  
+
   bcrypt.compare(incoming_password, expected_password, (err, result) => {
     if (err || !result) {
       req.body = {
