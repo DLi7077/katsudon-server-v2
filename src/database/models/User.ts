@@ -7,6 +7,7 @@ export interface UserAttributes {
   password: string;
   email: string;
   verified: boolean;
+  biography?: string;
   following: ObjectId[];
   followers: ObjectId[];
   solved: number[];
@@ -42,6 +43,10 @@ export const userSchema: Schema<UserAttributes> = new Schema<UserAttributes>({
     index: true
   },
   profile_picture_url: {
+    type: String,
+    required: false
+  },
+  biography: {
     type: String,
     required: false
   },
