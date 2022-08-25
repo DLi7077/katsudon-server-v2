@@ -108,7 +108,7 @@ async function addProblemToSolved(
   user_id: ObjectId,
   problem_id: ObjectId
 ): Promise<any> {
-  const problemExists = await Models.Problem.findOne({ _id: problem_id });
+  const problemExists = await Models.Problem.exists(problem_id);
   if (!problemExists) {
     return new NotFoundResponse(`problem #${problem_id} does not exist`);
   }
@@ -126,7 +126,7 @@ async function addProblemToSolved(
  */
 async function publicProfile(username: string): Promise<any> {
   const userDetails = await Models.User.findOne({
-    username: username,
+    username,
     deleted_at: null
   })
     .populate({ path: 'solved' })

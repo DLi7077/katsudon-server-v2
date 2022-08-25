@@ -6,6 +6,7 @@ import SolutionPresenter from '../../presenters/solution';
 import UserService from '../../service/user';
 import ProblemService from '../../service/problem';
 import Models from '../../database';
+import { ObjectId } from 'mongoose';
 
 /**
  * @description Creates a solution
@@ -28,18 +29,16 @@ export async function createSolution(
     const { problem, solution } = await SolutionService.create(req.body)
       .then((result: any) => {
         req.body.solution = result.solution.toJSON();
-        console.log(result);
         return result;
       })
       .catch(next);
 
     const solver_id = _.get(solution, 'user_id');
-    const question_id = _.get(problem, '_id');
+    const problem_id = _.get(problem, '_id');
 
-    await UserService.addProblemToSolved(solver_id, question_id).catch(next);
-    await ProblemService.addSolver(question_id, solver_id).catch(next);
+    await UserService.addProblemToSolved(solver_id, problem_id).catch(next);
+    await ProblemService.addSolver(problem_id, solver_id).catch(next);
 
-    console.log('done with transaction');
     await session.commitTransaction();
     session.endSession();
   } catch (err) {
@@ -48,6 +47,29 @@ export async function createSolution(
 
     return next(err);
   }
+
+  return next();
+}
+
+/**
+ * @description finds all solutions from a user
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @param {ObjectId} userId
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function findAllSolutionsFromUserId(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  userId: ObjectId
+): Promise<void> {
+  await SolutionService.findAllFromUserId(userId)
+    .then((result: any) => {
+      req.body = result;
+    })
+    .catch(next);
 
   return next();
 }
@@ -63,4 +85,9 @@ export function present(req: Request, res: Response): void {
   res.json({
     solution: SolutionPresenter.present(req.body.solution)
   });
+}
+
+export function presentAll(req: Request, res: Response): void {
+  res.status(200);
+  res.json({ ...req.body });
 }
