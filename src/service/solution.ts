@@ -77,30 +77,32 @@ async function findAllFromUserId(userId: any): Promise<any> {
   const cleanedSolutions: any = _.reduce(
     solutions,
     (accumulator: any, currSolution: any) => {
-      const problemId = _.get(currSolution, 'solution.problem_id');
-      const solutionLanguage = _.get(
-        currSolution,
-        'solution.solution_language'
-      );
+      const { problem_id, solution_language } = _.get(currSolution, 'solution');
+      const problemDifficulty = _.get(currSolution, 'problem.difficulty');
+      accumulator[problemDifficulty] += 1;
 
-      if (accumulator[problemId]) {
-        accumulator[problemId]['solutions'][solutionLanguage] = _.get(
+      if (accumulator[problem_id]) {
+        accumulator[problem_id]['solutions'][solution_language] = _.get(
           currSolution,
           'solution'
         );
         return accumulator;
       }
 
-      accumulator[problemId] = {
+      accumulator[problem_id] = {
         problem: _.omit(currSolution.problem, '_id'),
         solutions: {
-          [solutionLanguage]: _.omit(_.get(currSolution, 'solution'), '_id')
+          [solution_language]: _.omit(_.get(currSolution, 'solution'), '_id')
         }
       };
 
       return accumulator;
     },
-    {}
+    {
+      Easy: 0,
+      Medium: 0,
+      Hard: 0
+    }
   );
 
   return cleanedSolutions;
