@@ -5,6 +5,7 @@ import {
   followUser,
   unfollowUser,
   login,
+  findUserProfile,
   findUserByEmail,
   findAllUsers,
   presentUser,
@@ -14,10 +15,14 @@ import {
 
 const router = express.Router();
 
+router.param('username', findUserProfile);
+
 router.get('/find-by-email', findUserByEmail, presentUser);
 router.get('/all', findAllUsers, presentAll);
-router.post('/login', login, presentLogin);
 
+router.get('/:username', presentUser);
+
+router.post('/login', login, presentLogin);
 router.post('/create', createUser, presentUser);
 router.post('/update', updateUser, presentUser);
 router.post('/follow', followUser, presentAll);

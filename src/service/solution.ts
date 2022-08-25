@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import _ from 'lodash';
+import { Types } from 'mongoose';
 import Models from '../database';
 import { SolutionAttributes } from '../database/models/Solution';
 
@@ -37,6 +38,75 @@ async function create(attributes: SolutionAttributes): Promise<any> {
   };
 }
 
+/**
+ * @description Finds the most recent solutions for each problem a given user solved
+ * @param {ObjectId} userId
+ * @returns All latest solutions solved for each problem by the user
+ */
+async function findAllFromUserId(userId: any): Promise<any> {
+  const solutions: any[] = await Models.Solution.aggregate([
+    { $match: { user_id: new Types.ObjectId(userId) } },
+    { $sort: { created_at: -1 } },
+    {
+      $group: {
+        _id: {
+          field_1: '$problem_id',
+          field_2: '$solution_language'
+        },
+        solution: { $first: '$$ROOT' }
+      }
+    },
+    {
+      $lookup: {
+        from: 'problems',
+        localField: 'solution.problem_id',
+        foreignField: 'id',
+        as: 'problem'
+      }
+    },
+    {
+      $project: {
+        _id: false,
+        solution: true,
+        problem: { $first: '$problem' }
+      }
+    }
+  ]);
+
+  //splits solutions into grouped by problem
+  const cleanedSolutions: any = _.reduce(
+    solutions,
+    (accumulator: any, currSolution: any) => {
+      const problemId = _.get(currSolution, 'solution.problem_id');
+      const solutionLanguage = _.get(
+        currSolution,
+        'solution.solution_language'
+      );
+
+      if (accumulator[problemId]) {
+        accumulator[problemId]['solutions'][solutionLanguage] = _.get(
+          currSolution,
+          'solution'
+        );
+        return accumulator;
+      }
+
+      accumulator[problemId] = {
+        problem: _.omit(currSolution.problem, '_id'),
+        solutions: {
+          [solutionLanguage]: _.omit(_.get(currSolution, 'solution'), '_id')
+        }
+      };
+
+      return accumulator;
+    },
+    {}
+  );
+
+  return cleanedSolutions;
+}
+
 export default {
-  create
+  create,
+  findAllFromUserId
 };

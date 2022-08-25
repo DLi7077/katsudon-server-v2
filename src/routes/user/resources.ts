@@ -148,8 +148,6 @@ export async function unfollowUser(
   return next();
 }
 
-// --------------------GET---------------------
-
 /**
  * @description logs in user using email and password
  * @param {Request} req - the HTTP request object
@@ -185,6 +183,29 @@ export async function login(
   });
 }
 
+// --------------------GET---------------------
+/**
+ * @description Finds a user's profile info by username
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function findUserProfile(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  character: string
+): Promise<void> {
+  await UserService.publicProfile(character)
+    .then((result: any) => {
+      req.body = result.toJSON();
+    })
+    .catch(next);
+
+  return next();
+}
+
 /**
  * @description Finds a user by email
  * @param {Request} req - the HTTP request object
@@ -198,9 +219,6 @@ export async function findUserByEmail(
   next: NextFunction
 ): Promise<void> {
   const email: any = _.get(req.query, 'email') ?? '';
-  await UserService.publicProfile('Devin').then((res) => {
-    console.log(res);
-  });
   const foundUser = await UserService.findByEmail(email).catch(next);
   if (!foundUser) {
     const noUserError = new NotFoundResponse('No associated account');

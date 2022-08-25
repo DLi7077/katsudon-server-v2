@@ -30,9 +30,18 @@ async function addSolver(problemId: any, userId: any): Promise<any> {
 }
 
 /**
- * @description Retrieves all questions that match a query
- * @param {SolutionAttributes} queryParams - the queries
+ * @description Finds a leetcode problem by problemId as shown on leetcode.com
+ * @param {number} problemId - the problemId
  * @returns {Promise<any>} Promise of problems that match the query
+ */
+async function findById(problemId: number): Promise<any> {
+  return Models.Problem.findOne({ id: problemId });
+}
+
+/**
+ * @description Retrieves all problems that match a query
+ * @param {SolutionAttributes} queryParams - the queries
+ * @returns {Promise<any>} Promise of problems that match a query
  */
 async function findAll(queryParams: any): Promise<any> {
   const problems = await Models.Problem.find(queryParams);
@@ -46,5 +55,6 @@ async function findAll(queryParams: any): Promise<any> {
 export default {
   create,
   addSolver,
+  findById,
   findAll
 };

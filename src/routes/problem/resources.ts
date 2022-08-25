@@ -24,8 +24,23 @@ export async function createProblem(
   return next();
 }
 
+export async function findById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  problemId: number
+): Promise<any> {
+  await ProblemService.findById(problemId)
+    .then((problem: any) => {
+      req.body.problem = problem;
+    })
+    .catch(next);
+
+  return next();
+}
+
 /**
- * @description Creates a problem
+ * @description finds all problems that satisfy a query
  * @param {Request} req - the HTTP request object
  * @param {Response} res - the HTTP response object
  * @param {NextFunction} next - callback to the next route function
