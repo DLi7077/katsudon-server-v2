@@ -195,9 +195,9 @@ export async function findUserProfile(
   req: Request,
   res: Response,
   next: NextFunction,
-  character: string
+  username: string
 ): Promise<void> {
-  await UserService.publicProfile(character)
+  await UserService.publicProfile(username)
     .then((result: any) => {
       req.body = result.toJSON();
     })
