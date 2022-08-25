@@ -1,12 +1,12 @@
 /* eslint-disable camelcase */
 import { Request, Response, NextFunction } from 'express';
 import _ from 'lodash';
+import { ObjectId } from 'mongoose';
 import SolutionService from '../../service/solution';
 import SolutionPresenter from '../../presenters/solution';
 import UserService from '../../service/user';
 import ProblemService from '../../service/problem';
 import Models from '../../database';
-import { ObjectId } from 'mongoose';
 
 /**
  * @description Creates a solution

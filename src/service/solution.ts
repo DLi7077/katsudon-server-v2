@@ -73,35 +73,50 @@ async function findAllFromUserId(userId: any): Promise<any> {
     }
   ]);
 
-  //splits solutions into grouped by problem
+  const questionSet = new Set();
+  // splits solutions into grouped by problem
   const cleanedSolutions: any = _.reduce(
     solutions,
     (accumulator: any, currSolution: any) => {
       const { problem_id, solution_language } = _.get(currSolution, 'solution');
       const problemDifficulty = _.get(currSolution, 'problem.difficulty');
-      accumulator[problemDifficulty] += 1;
+
+      if (!questionSet.has(problem_id)) {
+        accumulator['difficulty_distribution'][problemDifficulty] += 1;
+        questionSet.add(problem_id);
+      }
+
+      const solutionDetails = {
+        [solution_language]: _.omit(_.get(currSolution, 'solution'), '_id')
+      };
+      const incomingDate = _.get(currSolution, 'solution.created_at');
 
       if (accumulator[problem_id]) {
-        accumulator[problem_id]['solutions'][solution_language] = _.get(
-          currSolution,
-          'solution'
-        );
+        accumulator[problem_id]['solutions'][solution_language] =
+          solutionDetails;
+        const recentDate = accumulator[problem_id]['solutions']['recent'];
+        if (recentDate < incomingDate)
+          accumulator[problem_id]['solutions']['recent'] = incomingDate;
+
         return accumulator;
       }
 
       accumulator[problem_id] = {
         problem: _.omit(currSolution.problem, '_id'),
         solutions: {
-          [solution_language]: _.omit(_.get(currSolution, 'solution'), '_id')
+          recent: incomingDate,
+          ...solutionDetails
         }
       };
 
       return accumulator;
     },
     {
-      Easy: 0,
-      Medium: 0,
-      Hard: 0
+      difficulty_distribution: {
+        Easy: 0,
+        Medium: 0,
+        Hard: 0
+      }
     }
   );
 
