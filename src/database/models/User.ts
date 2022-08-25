@@ -10,7 +10,7 @@ export interface UserAttributes {
   biography?: string;
   following: ObjectId[];
   followers: ObjectId[];
-  solved: number[];
+  solved: ObjectId[];
   profile_picture_url?: string;
   created_at: Date;
   updated_at: Date;
@@ -52,15 +52,18 @@ export const userSchema: Schema<UserAttributes> = new Schema<UserAttributes>({
   },
   following: {
     type: [mongoose.Schema.Types.ObjectId],
-    required: true
+    required: true,
+    ref: 'User'
   },
   followers: {
     type: [mongoose.Schema.Types.ObjectId],
-    required: true
+    required: true,
+    ref: 'User'
   },
   solved: {
-    type: [Number],
-    required: true
+    type: [mongoose.Schema.Types.ObjectId],
+    required: true,
+    ref: 'Problem'
   },
   verified: {
     type: Boolean,

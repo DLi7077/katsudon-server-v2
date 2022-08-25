@@ -25,18 +25,21 @@ export async function createSolution(
   session.startTransaction();
 
   try {
-    const createdSolution = await SolutionService.create(req.body)
-      .then((solution: any) => {
-        req.body.solution = solution.toJSON();
-        return solution;
+    const { problem, solution } = await SolutionService.create(req.body)
+      .then((result: any) => {
+        req.body.solution = result.solution.toJSON();
+        console.log(result);
+        return result;
       })
       .catch(next);
 
-    const solver_id = _.get(createdSolution, 'user_id');
-    const question_id = _.get(createdSolution, 'problem_id');
+    const solver_id = _.get(solution, 'user_id');
+    const question_id = _.get(problem, '_id');
+
     await UserService.addProblemToSolved(solver_id, question_id).catch(next);
     await ProblemService.addSolver(question_id, solver_id).catch(next);
 
+    console.log('done with transaction');
     await session.commitTransaction();
     session.endSession();
   } catch (err) {

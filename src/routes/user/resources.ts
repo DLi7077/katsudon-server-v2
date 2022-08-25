@@ -198,6 +198,9 @@ export async function findUserByEmail(
   next: NextFunction
 ): Promise<void> {
   const email: any = _.get(req.query, 'email') ?? '';
+  await UserService.publicProfile('Devin').then((res) => {
+    console.log(res);
+  });
   const foundUser = await UserService.findByEmail(email).catch(next);
   if (!foundUser) {
     const noUserError = new NotFoundResponse('No associated account');
