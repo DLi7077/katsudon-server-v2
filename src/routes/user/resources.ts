@@ -198,8 +198,8 @@ export async function findUserProfile(
   character: string
 ): Promise<void> {
   await UserService.publicProfile(character)
-    .then((res: any) => {
-      req.body = res.toJSON();
+    .then((result: any) => {
+      req.body = result.toJSON();
     })
     .catch(next);
 
