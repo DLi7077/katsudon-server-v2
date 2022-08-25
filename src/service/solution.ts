@@ -10,7 +10,7 @@ import { SolutionAttributes } from '../database/models/Solution';
  */
 async function create(attributes: SolutionAttributes): Promise<any> {
   // upsert the solved problem
-  const updatedProblemAttributes = {
+  const updatedProblemAttributes: any = {
     id: _.get(attributes, 'problem_id'),
     title: _.get(attributes, 'problem_title'),
     url: _.get(attributes, 'problem_url'),
@@ -18,20 +18,12 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     description: _.get(attributes, 'problem_description'),
     tags: _.get(attributes, 'problem_tags')
   };
-  const problemExists = await Models.Problem.exists({
-    id: updatedProblemAttributes.id
-  });
 
-  // create problem if doesn't exist
-  if (!problemExists) {
-    await Models.Problem.findOneAndUpdate(
-      {
-        id: updatedProblemAttributes.id
-      },
-      updatedProblemAttributes,
-      { upsert: true }
-    );
-  }
+  const updatedProblem = await Models.Problem.findOneAndUpdate(
+    { id: updatedProblemAttributes.id },
+    updatedProblemAttributes,
+    { upsert: true, new: true }
+  );
 
   // create the solution
   const createdSolution = await Models.Solution.create({
@@ -39,7 +31,10 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     created_at: new Date()
   });
 
-  return createdSolution;
+  return {
+    problem: updatedProblem,
+    solution: createdSolution
+  };
 }
 
 export default {

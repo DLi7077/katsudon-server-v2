@@ -52,7 +52,8 @@ export const ProblemSchema: Schema<ProblemAttributes> =
     },
     solved_by: {
       type: [mongoose.Schema.Types.ObjectId],
-      required: false
+      required: false,
+      ref: 'User'
     }
   });
 

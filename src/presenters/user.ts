@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 // Presents a single user
 function present(user: any): any {
-  return _.pick(user, ['_id', 'username', 'email', 'created_at']);
+  return _.omit(user, ['password']);
 }
 
 // Presents many users

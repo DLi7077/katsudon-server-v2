@@ -15,13 +15,13 @@ async function create(attributes: ProblemAttributes): Promise<any> {
 
 /**
  * @description Adds a solver to the solved_by field for a problem
- * @param {number} problemId the problem's ID as shown on leetcode
+ * @param {ObjectId} problemId the problem's id in mongoDB
  * @param {ObjectId} userId the solver's id
  * @returns {Promise<any>} Promise of updated problem
  */
-async function addSolver(problemId: number, userId: any): Promise<any> {
+async function addSolver(problemId: any, userId: any): Promise<any> {
   const updatedProblem = await Models.Problem.findOneAndUpdate(
-    { id: problemId },
+    { _id: problemId },
     { $addToSet: { solved_by: userId } },
     { upsert: true, new: true }
   );

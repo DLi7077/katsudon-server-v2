@@ -106,9 +106,9 @@ async function unfollow(attributes: UserAttributes): Promise<any> {
 
 async function addProblemToSolved(
   user_id: ObjectId,
-  problem_id: number
+  problem_id: ObjectId
 ): Promise<any> {
-  const problemExists = await Models.Problem.findOne({ id: problem_id });
+  const problemExists = await Models.Problem.findOne({ _id: problem_id });
   if (!problemExists) {
     return new NotFoundResponse(`problem #${problem_id} does not exist`);
   }
@@ -117,6 +117,25 @@ async function addProblemToSolved(
     { _id: user_id },
     { $addToSet: { solved: problem_id } }
   );
+}
+
+/**
+ * @description generates details for a user's public profile
+ *
+ * @param username
+ */
+async function publicProfile(username: string): Promise<any> {
+  const userDetails = await Models.User.findOne({
+    username: username,
+    deleted_at: null
+  })
+    .populate({ path: 'solved' })
+    .populate({
+      path: 'following',
+      select: ['username', 'profile_picture_url']
+    });
+
+  return userDetails;
 }
 
 /**
@@ -152,6 +171,7 @@ export default {
   follow,
   unfollow,
   addProblemToSolved,
+  publicProfile,
   findByEmail,
   findById,
   findAll
