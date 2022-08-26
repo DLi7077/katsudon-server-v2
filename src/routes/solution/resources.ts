@@ -65,6 +65,8 @@ export async function findAllSolutionsFromUserId(
   next: NextFunction,
   userId: ObjectId
 ): Promise<void> {
+  await UserService.findById(userId).catch(next);
+
   await SolutionService.findAllFromUserId(userId)
     .then((result: any) => {
       req.body = result;

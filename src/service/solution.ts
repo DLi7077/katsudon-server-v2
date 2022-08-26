@@ -16,7 +16,11 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     title: _.get(attributes, 'problem_title'),
     url: _.get(attributes, 'problem_url'),
     difficulty: _.get(attributes, 'problem_difficulty'),
-    description: _.get(attributes, 'problem_description'),
+    //deal with empty alt names
+    description: _.get(attributes, 'problem_description').replace(
+      'alt=""',
+      'alt="visual"'
+    ),
     tags: _.get(attributes, 'problem_tags')
   };
 
@@ -40,7 +44,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
 
 /**
  * @description Finds the most recent solutions for each problem a given user solved
- * @param {ObjectId} userId
+ * @param {any} userId
  * @returns All latest solutions solved for each problem by the user
  */
 async function findAllFromUserId(userId: any): Promise<any> {
@@ -92,7 +96,7 @@ async function findAllFromUserId(userId: any): Promise<any> {
       const incomingDate = _.get(currSolution, 'solution.created_at');
 
       if (accumulator[problem_id]) {
-        accumulator[problem_id].solutions[solution_language] = solutionDetails;
+        _.assign(accumulator[problem_id].solutions, solutionDetails);
         const recentDate = accumulator[problem_id].solutions.recent;
         if (recentDate < incomingDate)
           accumulator[problem_id].solutions.recent = incomingDate;
