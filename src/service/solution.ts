@@ -82,7 +82,7 @@ async function findAllFromUserId(userId: any): Promise<any> {
       const problemDifficulty = _.get(currSolution, 'problem.difficulty');
 
       if (!questionSet.has(problem_id)) {
-        accumulator['difficulty_distribution'][problemDifficulty] += 1;
+        accumulator.difficulty_distribution[problemDifficulty] += 1;
         questionSet.add(problem_id);
       }
 
@@ -92,11 +92,10 @@ async function findAllFromUserId(userId: any): Promise<any> {
       const incomingDate = _.get(currSolution, 'solution.created_at');
 
       if (accumulator[problem_id]) {
-        accumulator[problem_id]['solutions'][solution_language] =
-          solutionDetails;
-        const recentDate = accumulator[problem_id]['solutions']['recent'];
+        accumulator[problem_id].solutions[solution_language] = solutionDetails;
+        const recentDate = accumulator[problem_id].solutions.recent;
         if (recentDate < incomingDate)
-          accumulator[problem_id]['solutions']['recent'] = incomingDate;
+          accumulator[problem_id].solutions.recent = incomingDate;
 
         return accumulator;
       }
