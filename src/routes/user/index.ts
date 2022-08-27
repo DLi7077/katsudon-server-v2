@@ -17,8 +17,8 @@ const router = express.Router();
 
 router.param('username', findUserProfile);
 
-router.get('/find-by-email', findUserByEmail, presentUser);
 router.get('/all', findAllUsers, presentAll);
+router.get('/find-by-email', findUserByEmail, presentUser);
 
 router.get('/:username', presentUser);
 

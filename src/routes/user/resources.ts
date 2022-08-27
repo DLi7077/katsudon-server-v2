@@ -34,7 +34,7 @@ export async function createUser(
 
   await UserService.create(req.body)
     .then((user: any) => {
-      req.body = user.toJSON();
+      req.body = user;
     })
     .catch(next);
 
@@ -205,7 +205,7 @@ export async function findUserProfile(
   }
   await UserService.publicProfile(username)
     .then((result: any) => {
-      req.body = result.toJSON();
+      req.body = result;
     })
     .catch(next);
 
@@ -230,7 +230,7 @@ export async function findUserByEmail(
     const noUserError = new NotFoundResponse('No associated account');
     return next(noUserError);
   }
-  req.body = foundUser.toJSON();
+  req.body = foundUser;
 
   return next();
 }

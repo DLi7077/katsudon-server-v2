@@ -2,7 +2,8 @@ import _ from 'lodash';
 
 // Presents a single user
 function present(user: any): any {
-  return _.omit(user, 'password');
+  console.log(user);
+  return _.omit(user.toJSON(), 'password');
 }
 
 // Presents many users
