@@ -19,7 +19,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     //deal with empty alt names and embed css
     description: _.get(attributes, 'problem_description').replace(
       'alt=""',
-      'alt="visual" style ="height:auto"'
+      'alt="visual" style ="height:auto width:100%;'
     ),
     tags: _.get(attributes, 'problem_tags')
   };
