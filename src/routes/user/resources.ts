@@ -9,6 +9,7 @@ import _ from 'lodash';
 import bcrypt from 'bcrypt';
 import UserService from '../../service/user';
 import UserPresenter from '../../presenters/user';
+import Models from '../../database';
 
 // -----------------POST----------------------
 /**
@@ -197,6 +198,11 @@ export async function findUserProfile(
   next: NextFunction,
   username: string
 ): Promise<void> {
+  const userExists = await Models.User.exists({ username: username });
+  if (!userExists) {
+    const error = new NotFoundResponse(`${username} is not a user`);
+    return next(error);
+  }
   await UserService.publicProfile(username)
     .then((result: any) => {
       req.body = result.toJSON();
