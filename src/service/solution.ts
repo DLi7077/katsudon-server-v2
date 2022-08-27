@@ -16,10 +16,10 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     title: _.get(attributes, 'problem_title'),
     url: _.get(attributes, 'problem_url'),
     difficulty: _.get(attributes, 'problem_difficulty'),
-    //deal with empty alt names
+    //deal with empty alt names and embed css
     description: _.get(attributes, 'problem_description').replace(
       'alt=""',
-      'alt="visual"'
+      'alt="visual" style ="height:auto"'
     ),
     tags: _.get(attributes, 'problem_tags')
   };
