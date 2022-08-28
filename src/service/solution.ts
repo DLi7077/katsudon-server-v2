@@ -17,7 +17,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     url: _.get(attributes, 'problem_url'),
     difficulty: _.get(attributes, 'problem_difficulty'),
     //deal with empty alt names and embed css
-    description: _.get(attributes, 'problem_description').replace(
+    description: _.get(attributes, 'problem_description').replaceAll(
       'alt=""',
       'alt="visual" style ="height:auto width:100%;'
     ),
