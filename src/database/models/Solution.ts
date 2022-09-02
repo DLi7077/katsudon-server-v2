@@ -4,7 +4,7 @@ import mongoose, { Schema, Model, ObjectId } from 'mongoose';
 export interface SolutionAttributes {
   _id: ObjectId;
   user_id: ObjectId;
-  problem_id: number;
+  problem_id: ObjectId;
   solution_language: string;
   solution_code: string;
   runtime_ms: number;
@@ -22,11 +22,13 @@ export const SolutionSchema: Schema<SolutionAttributes> = new Schema({
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    required: false
+    required: false,
+    ref: 'User'
   },
   problem_id: {
-    type: Number,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Problem'
   },
   solution_language: {
     type: String,
