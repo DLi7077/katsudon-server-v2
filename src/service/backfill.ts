@@ -1,9 +1,10 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-underscore-dangle */
 import async from 'async';
-import Models from '../database';
 import _ from 'lodash';
+import Models from '../database';
 
 async function addProblemIDtoSolutions() {
-  let i = 0;
   while (true) {
     const allSolutions = await Models.Solution.aggregate([
       { $match: { problem_id: { $type: 'number' } } },
@@ -24,9 +25,7 @@ async function addProblemIDtoSolutions() {
       { $limit: 10 }
     ]);
 
-    if (allSolutions.length == 0) break;
-    console.log('step', i);
-    i++;
+    if (allSolutions.length === 0) break;
     const appendFieldTasks = _.map(
       allSolutions,
       (solution) => async (next: any) => {

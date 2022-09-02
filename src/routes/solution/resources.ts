@@ -52,6 +52,27 @@ export async function createSolution(
 }
 
 /**
+ * @description
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function findAll(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await SolutionService.findAll(req.query)
+    .then((solutions: any) => {
+      req.body = solutions;
+    })
+    .catch(next);
+
+  return next();
+}
+
+/**
  * @description finds all solutions from a user
  * @param {Request} req - the HTTP request object
  * @param {Response} res - the HTTP response object

@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
-import { Request, Response, NextFunction } from 'express';
+/* eslint-disable import/prefer-default-export */
+import { Request, Response } from 'express';
 import BackfillService from '../../service/backfill';
 
 /**
@@ -11,8 +12,7 @@ import BackfillService from '../../service/backfill';
  */
 export async function backfillProblemID(
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): Promise<void> {
   await BackfillService.addProblemIDtoSolutions()
     .then((result: any) => {

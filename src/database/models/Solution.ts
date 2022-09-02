@@ -53,8 +53,8 @@ export const SolutionSchema: Schema<SolutionAttributes> = new Schema({
 });
 
 SolutionSchema.index({ user_id: 1 });
+SolutionSchema.index({ problem_id: 1 });
 SolutionSchema.index({ created_at: 1 });
-SolutionSchema.index({ solution_language: 1 });
 
 const SolutionModel: Model<SolutionAttributes> = mongoose.model(
   'Solution',
