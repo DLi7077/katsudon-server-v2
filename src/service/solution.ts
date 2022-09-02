@@ -33,6 +33,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
   // create the solution
   const createdSolution = await Models.Solution.create({
     ...attributes,
+    problem_id: updatedProblem._id,
     created_at: new Date()
   });
 
