@@ -121,13 +121,26 @@ async function addProblemToSolved(
 
 /**
  * @description generates details for a user's public profile
- *
- * @param username
+ * @param {any} queryParams querys to filter for a user
+ * @return {any} the user's details
  */
-async function publicProfile(username: string): Promise<any> {
+async function publicProfile(queryParams: any): Promise<any> {
+  const validKeys = ['user_id', 'username'];
+
+  const compiledQuery = _.reduce(
+    _.pick(queryParams, validKeys),
+    (accumulator: any, value: any, key: string) => {
+      if (key === 'user_id') {
+        return { _id: value };
+      }
+      accumulator[key] = value;
+      return accumulator;
+    },
+    {}
+  );
+
   const userDetails = await Models.User.findOne({
-    username,
-    deleted_at: null
+    ...compiledQuery
   })
     .populate({ path: 'solved' })
     .populate({

@@ -15,12 +15,9 @@ import {
 
 const router = express.Router();
 
-router.param('username', findUserProfile);
-
 router.get('/all', findAllUsers, presentAll);
+router.get('/profile', findUserProfile, presentUser);
 router.get('/find-by-email', findUserByEmail, presentUser);
-
-router.get('/:username', presentUser);
 
 router.post('/login', login, presentLogin);
 router.post('/create', createUser, presentUser);

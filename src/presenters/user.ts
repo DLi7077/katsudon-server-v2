@@ -14,13 +14,8 @@ function presentLogin(user: any): any {
   return user;
 }
 
-function presentProfile(user: any): any {
-  return _.omit(user, 'password');
-}
-
 export default {
   present,
   presentAll,
-  presentLogin,
-  presentProfile
+  presentLogin
 };

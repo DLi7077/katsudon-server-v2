@@ -195,15 +195,14 @@ export async function login(
 export async function findUserProfile(
   req: Request,
   res: Response,
-  next: NextFunction,
-  username: string
+  next: NextFunction
 ): Promise<void> {
-  const userExists = await Models.User.exists({ username });
+  const userExists = await Models.User.exists(req.query);
   if (!userExists) {
-    const error = new NotFoundResponse(`${username} is not a user`);
+    const error = new NotFoundResponse(`No user found`);
     return next(error);
   }
-  await UserService.publicProfile(username)
+  await UserService.publicProfile(req.query)
     .then((result: any) => {
       req.body = result;
     })
@@ -265,7 +264,7 @@ export async function findAllUsers(
 export function presentUser(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    user: UserPresenter.presentProfile(req.body)
+    user: UserPresenter.present(req.body)
   });
 }
 
