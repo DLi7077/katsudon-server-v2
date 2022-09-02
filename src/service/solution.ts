@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Types } from 'mongoose';
 import Models from '../database';
 import { SolutionAttributes } from '../database/models/Solution';
+import groupSolutionsByDate from '../utils/Problem';
 
 /**
  * @description Creates a submission, upserts the problem solved
@@ -16,7 +17,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     title: _.get(attributes, 'problem_title'),
     url: _.get(attributes, 'problem_url'),
     difficulty: _.get(attributes, 'problem_difficulty'),
-    //deal with empty alt names and embed css
+    // deal with empty alt names and embed css
     description: _.get(attributes, 'problem_description').replaceAll(
       'alt=""',
       'alt="visual" style ="height:auto; max-width:100%;"'
@@ -33,7 +34,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
   // create the solution
   const createdSolution = await Models.Solution.create({
     ...attributes,
-    problem_id: updatedProblem._id,
+    problem_id: _.get(updatedProblem, '_id'),
     created_at: new Date()
   });
 
@@ -138,123 +139,135 @@ function defaultQueryParams(queryParams: any): any {
 /**
  * @description sets the queryParams
  * @param {object} queryParams an object containing query keys and values
+ * @return {any} the updated base query params
  */
-function setQueryParams(queryParams: any, queryKeys: string[]): any {
+function validateQueryParams(queryParams: any, queryKeys: string[]): any {
   const validKeys = _.filter(queryKeys, (key: string) => {
     return !_.isUndefined(queryParams[key]);
   });
 
-  const filterQuery = _.reduce(
-    validKeys,
-    (builtQuery: any, key: any) => {
-      if (key === 'problem_id') {
-        builtQuery[key] = parseInt(queryParams[key]) ?? 0;
-        return builtQuery;
-      }
-      builtQuery[key] = queryParams[key];
-      return builtQuery;
-    },
-    {}
-  );
-
-  return filterQuery;
+  return _.pick(queryParams, validKeys);
 }
 
-function getUserSolutionQuery(queryParams: any): any[] {
+/**
+ * @description Expands and validates the search params
+ * @param {any} queryParams query params provided
+ * @returns {any} the validated and updated search queries
+ */
+function getSortParams(queryParams: any[]): any {
+  const sortMapping: any = {
+    problem_id: 'problem.id',
+    created_at: 'last_solved_at'
+  };
+
+  const baseQuery: any = defaultQueryParams(queryParams);
+  if (sortMapping[baseQuery.sortBy]) {
+    return {
+      sortBy: sortMapping[baseQuery.sortBy],
+      sortDir: baseQuery.sortDir
+    };
+  }
+
+  return _.pick(queryParams, ['sortBy', 'sortDir']);
+}
+
+/**
+ * @description Generates the solution lookup query
+ * @returns {any[]} a list of aggregate functions
+ */
+function getUserSolutionQuery(): any[] {
   return [
-    {
-      $match: queryParams.user_id
-        ? { user_id: new Types.ObjectId(queryParams.user_id) }
-        : {}
-    },
     { $sort: { created_at: -1 } },
     {
       $group: {
         _id: {
-          problem: '$problem_id',
-          language: '$solution_language'
+          user_id: '$user_id',
+          problem: '$problem_id'
         },
-        solution: { $first: '$$ROOT' }
+        problem: { $first: '$problem_id' },
+        solutions: {
+          $push: '$$ROOT'
+        }
       }
     },
-    // {
-    //   $lookup: {
-    //     from: 'problems',
-    //     localField: 'solution.problem_id',
-    //     foreignField: 'id',
-    //     as: 'problem'
-    //   }
-    // },
+    {
+      $lookup: {
+        from: 'problems',
+        localField: 'problem',
+        foreignField: '_id',
+        as: 'problem'
+      }
+    },
+    { $unwind: '$problem' },
     {
       $project: {
         _id: false,
-        solution: true
-        // problem: { $first: '$problem' }
+        problem: true,
+        solutions: true
       }
     }
   ];
 }
 
-function solutionProjectionQuery(): any {
-  const solutionFields = [
-    '_id',
-    'user_id',
-    'problem_id',
-    'solution_language',
-    'solution_code',
-    'runtime_ms',
-    'memory_usage_mb',
-    'created_at'
-  ];
-  const problemFields = [];
-  const projection = {
-    _id: false,
-    solution: true
-  };
-}
-
 /**
- * @description
- * @param queryParams
- * @returns
+ * @description Finds all solutions that match the query
+ * @param {any} queryParams query params provided
+ * @returns {Promise <any>} Promise of solutions
  */
 async function findAll(queryParams: any): Promise<any> {
-  const validQueryKeys = ['user_id', 'problem_id', 'created_at'];
+  const validQueryKeys = ['user_id', 'problem_id', 'created_at', 'tags'];
 
-  const baseQuery = defaultQueryParams(queryParams);
-  const { sortBy, sortDir } = baseQuery;
+  const builtQuery = validateQueryParams(queryParams, validQueryKeys);
+  const { sortBy, sortDir } = getSortParams(queryParams);
 
-  const builtQuery = setQueryParams(baseQuery, validQueryKeys);
+  // translate problem number to database id for filter if requested
+  const problemNumber: Types.ObjectId = builtQuery.problem_id
+    ? await Models.Problem.findOne({
+        id: builtQuery.problem_id
+      }).then((problem: any) => _.get(problem, '_id'))
+    : null;
 
-  console.log(builtQuery);
-  const embeddedBuiltQuery = _.map(builtQuery, (value: any, key: string) => {
-    if (key === 'user_id') {
-      const userObjectId = new Types.ObjectId(builtQuery.user_id);
-      return { [key]: userObjectId };
+  const preQueryParams = _.map(
+    _.omit(builtQuery, ['tags']),
+    (value: any, key: string) => {
+      let updatedQuery: any = value;
+      if (key === 'user_id') {
+        const userObjectId = new Types.ObjectId(builtQuery.user_id);
+        updatedQuery = userObjectId;
+      }
+      if (key === 'problem_id') {
+        updatedQuery = problemNumber;
+      }
+
+      return { [key]: updatedQuery };
     }
-    return { [key]: value };
-  });
+  );
 
-  console.log(embeddedBuiltQuery);
+  const postQueryParams = _.map(
+    _.pick(builtQuery, ['tags']),
+    (value: any, key: string) => {
+      if (key === 'tags') {
+        return { 'problem.tags': { $all: [value] } };
+      }
 
-  const userSolutionsQuery = getUserSolutionQuery(queryParams);
-  const result = await Models.Solution.aggregate([
-    {
-      $match: embeddedBuiltQuery.length ? { $and: embeddedBuiltQuery } : {}
-    },
-    ...userSolutionsQuery
-  ]).then(async (res: any) => {
-    return Models.User.populate(res, 'solution.user_id');
+      return { [key]: value };
+    }
+  );
+
+  const userSolutionsQuery = getUserSolutionQuery();
+
+  const userSolutions: any = await Models.Solution.aggregate([
+    { $match: preQueryParams.length ? { $and: preQueryParams } : {} },
+    ...userSolutionsQuery,
+    { $match: postQueryParams.length ? { $and: postQueryParams } : {} }
+  ]).then((solutions: any[]) => {
+    const groupedSolutions = groupSolutionsByDate(solutions);
+    return _.orderBy(groupedSolutions, [sortBy], [sortDir]);
   });
-  // .then((res: any[]) => {
-  //   return _.groupBy(res, (solution: any) => {
-  //     return _.get(solution, 'problem.id');
-  //   });
-  // });
 
   return {
-    count: result.length,
-    rows: result
+    count: userSolutions.length,
+    rows: userSolutions
   };
 }
 

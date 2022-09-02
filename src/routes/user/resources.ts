@@ -198,7 +198,7 @@ export async function findUserProfile(
   next: NextFunction,
   username: string
 ): Promise<void> {
-  const userExists = await Models.User.exists({ username: username });
+  const userExists = await Models.User.exists({ username });
   if (!userExists) {
     const error = new NotFoundResponse(`${username} is not a user`);
     return next(error);
