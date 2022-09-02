@@ -265,7 +265,7 @@ export async function findAllUsers(
 export function presentUser(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    user: UserPresenter.present(req.body)
+    user: UserPresenter.presentProfile(req.body)
   });
 }
 
