@@ -127,7 +127,139 @@ async function findAllFromUserId(userId: any): Promise<any> {
   return cleanedSolutions;
 }
 
+function defaultQueryParams(queryParams: any): any {
+  return {
+    sortBy: 'problem_id',
+    sortDir: 'asc',
+    ...queryParams
+  };
+}
+
+/**
+ * @description sets the queryParams
+ * @param {object} queryParams an object containing query keys and values
+ */
+function setQueryParams(queryParams: any, queryKeys: string[]): any {
+  const validKeys = _.filter(queryKeys, (key: string) => {
+    return !_.isUndefined(queryParams[key]);
+  });
+
+  const filterQuery = _.reduce(
+    validKeys,
+    (builtQuery: any, key: any) => {
+      if (key === 'problem_id') {
+        builtQuery[key] = parseInt(queryParams[key]) ?? 0;
+        return builtQuery;
+      }
+      builtQuery[key] = queryParams[key];
+      return builtQuery;
+    },
+    {}
+  );
+
+  return filterQuery;
+}
+
+function getUserSolutionQuery(queryParams: any): any[] {
+  return [
+    {
+      $match: queryParams.user_id
+        ? { user_id: new Types.ObjectId(queryParams.user_id) }
+        : {}
+    },
+    { $sort: { created_at: -1 } },
+    {
+      $group: {
+        _id: {
+          problem: '$problem_id',
+          language: '$solution_language'
+        },
+        solution: { $first: '$$ROOT' }
+      }
+    },
+    // {
+    //   $lookup: {
+    //     from: 'problems',
+    //     localField: 'solution.problem_id',
+    //     foreignField: 'id',
+    //     as: 'problem'
+    //   }
+    // },
+    {
+      $project: {
+        _id: false,
+        solution: true
+        // problem: { $first: '$problem' }
+      }
+    }
+  ];
+}
+
+function solutionProjectionQuery(): any {
+  const solutionFields = [
+    '_id',
+    'user_id',
+    'problem_id',
+    'solution_language',
+    'solution_code',
+    'runtime_ms',
+    'memory_usage_mb',
+    'created_at'
+  ];
+  const problemFields = [];
+  const projection = {
+    _id: false,
+    solution: true
+  };
+}
+
+/**
+ * @description
+ * @param queryParams
+ * @returns
+ */
+async function findAll(queryParams: any): Promise<any> {
+  const validQueryKeys = ['user_id', 'problem_id', 'created_at'];
+
+  const baseQuery = defaultQueryParams(queryParams);
+  const { sortBy, sortDir } = baseQuery;
+
+  const builtQuery = setQueryParams(baseQuery, validQueryKeys);
+
+  console.log(builtQuery);
+  const embeddedBuiltQuery = _.map(builtQuery, (value: any, key: string) => {
+    if (key === 'user_id') {
+      const userObjectId = new Types.ObjectId(builtQuery.user_id);
+      return { [key]: userObjectId };
+    }
+    return { [key]: value };
+  });
+
+  console.log(embeddedBuiltQuery);
+
+  const userSolutionsQuery = getUserSolutionQuery(queryParams);
+  const result = await Models.Solution.aggregate([
+    {
+      $match: embeddedBuiltQuery.length ? { $and: embeddedBuiltQuery } : {}
+    },
+    ...userSolutionsQuery
+  ]).then(async (res: any) => {
+    return Models.User.populate(res, 'solution.user_id');
+  });
+  // .then((res: any[]) => {
+  //   return _.groupBy(res, (solution: any) => {
+  //     return _.get(solution, 'problem.id');
+  //   });
+  // });
+
+  return {
+    count: result.length,
+    rows: result
+  };
+}
+
 export default {
   create,
+  findAll,
   findAllFromUserId
 };
