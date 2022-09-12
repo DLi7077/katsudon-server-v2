@@ -247,7 +247,7 @@ async function findAll(queryParams: any): Promise<any> {
     _.pick(builtQuery, ['tags']),
     (value: any, key: string) => {
       if (key === 'tags') {
-        return { 'problem.tags': { $all: [value] } };
+        return { 'problem.tags': { $all: value } };
       }
 
       return { [key]: value };
