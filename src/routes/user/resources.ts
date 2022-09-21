@@ -163,6 +163,11 @@ export async function login(
 ): Promise<void> {
   const email: any = _.get(req.body, 'email');
   const user: any = await UserService.findByEmail(email).catch(next);
+  const userExists = await Models.User.exists({ email: email });
+  if (!userExists) {
+    res.sendStatus(404);
+    return; 
+  }
 
   const incoming_password: any = _.get(req.body, 'password');
   const expected_password: any = _.get(user, 'password');
@@ -286,6 +291,6 @@ export function presentAll(req: Request, res: Response): void {
 export function presentLogin(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    user: UserPresenter.present(req.body.user)
+    ...req.body
   });
 }
