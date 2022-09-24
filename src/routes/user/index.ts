@@ -1,10 +1,10 @@
 import express from 'express';
 import {
   createUser,
-  updateUser,
   followUser,
   unfollowUser,
   login,
+  authenticateToken,
   findUserProfile,
   findUserByEmail,
   findAllUsers,
@@ -21,8 +21,7 @@ router.get('/find-by-email', findUserByEmail, presentUser);
 
 router.post('/login', login, presentLogin);
 router.post('/create', createUser, presentUser);
-router.post('/update', updateUser, presentUser);
-router.post('/follow', followUser, presentAll);
-router.post('/unfollow', unfollowUser, presentAll);
+router.post('/follow', authenticateToken, followUser, presentAll);
+router.post('/unfollow', authenticateToken, unfollowUser, presentAll);
 
 export default router;
