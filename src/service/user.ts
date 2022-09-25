@@ -56,7 +56,6 @@ async function follow(
   // safety logic, prevent follow if already following
   // add following to following list
   // add follower to follower list
-  console.log(currentUserId);
 
   const follow_success = await Models.User.findByIdAndUpdate(
     { _id: currentUserId },

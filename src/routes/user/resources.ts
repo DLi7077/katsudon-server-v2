@@ -17,6 +17,88 @@ import { UserLoginAttribute } from '../../types/Interface';
 dotenv.config();
 
 // -----------------POST----------------------
+
+/**
+ * @description logs in user using email and password
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function login(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const email: any = _.get(req.body, 'email');
+  const user: any = await UserService.findByEmail(email).catch(console.error);
+  const userExists = await Models.User.exists({ email });
+  if (!userExists) {
+    res.status(401).send('User not found');
+    return;
+  }
+
+  const incoming_password: any = _.get(req.body, 'password');
+  const expected_password: any = _.get(user, 'password');
+
+  bcrypt.compare(incoming_password, expected_password, (err, result) => {
+    if (err || !result) {
+      res.status(401).send('Incorrect Password');
+      return;
+    }
+
+    const userObject: UserLoginAttribute = _.pick(req.body, [
+      'email',
+      'password'
+    ]);
+
+    const accessToken = jwt.sign(userObject, process.env.AUTH_SECRET ?? '');
+
+    req.body = {
+      status: 'Successfully logged in!',
+      access_token: accessToken,
+      email
+    };
+
+    req.headers.authorization = `Bearer ${accessToken}`;
+
+    next();
+  });
+}
+
+export async function authenticateToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const authHeader = req.headers.authorization;
+  const token = (authHeader && authHeader.split(' ')[1]) ?? '';
+
+  if (!token) {
+    res.status(401).send('Forbidden');
+    return;
+  }
+
+  // verify user, if verfied, provide the current user attributes
+  jwt.verify(token, process.env.AUTH_SECRET ?? '', async (err, user) => {
+    if (err) {
+      res.status(403).send('Invalid Token');
+      return;
+    }
+
+    const userEmail = _.get(user, 'email');
+    const foundUser = await UserService.findByEmail(userEmail);
+
+    if (!foundUser) {
+      res.status(404).send('No user found with associated email');
+      return;
+    }
+
+    req.currentUser = foundUser;
+    next();
+  });
+}
+
 /**
  * @description Creates a user
  * @param {Request} req - the HTTP request object
@@ -70,8 +152,6 @@ export async function followUser(
     return error;
   };
 
-  console.log(toFollowId, toFollowExists);
-
   if (!toFollowExists) return next(userNotFound(toFollowId));
 
   await UserService.follow(currentUserId, toFollowId)
@@ -108,7 +188,6 @@ export async function unfollowUser(
     const error = new NotFoundResponse(`${user_id} does not exist`);
     return error;
   };
-  console.log(currentUserId, toUnfollowId, toUnfollowExists);
 
   if (!toUnfollowExists) {
     return next(userNotFound(toUnfollowId));
@@ -123,84 +202,6 @@ export async function unfollowUser(
     .catch(next);
 
   return next();
-}
-
-/**
- * @description logs in user using email and password
- * @param {Request} req - the HTTP request object
- * @param {Response} res - the HTTP response object
- * @param {NextFunction} next - callback to the next route function
- * @returns {Promise<void>} Returns next function to execute
- */
-export async function login(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  const email: any = _.get(req.body, 'email');
-  const user: any = await UserService.findByEmail(email).catch(next);
-  const userExists = await Models.User.exists({ email });
-  if (!userExists) {
-    res.status(401).send('User not found');
-    return;
-  }
-
-  const incoming_password: any = _.get(req.body, 'password');
-  const expected_password: any = _.get(user, 'password');
-
-  bcrypt.compare(incoming_password, expected_password, (err, result) => {
-    if (err || !result) {
-      res.status(401).send('Incorrect Password');
-      return;
-    }
-
-    const userObject: UserLoginAttribute = _.pick(req.body, [
-      'email',
-      'password'
-    ]);
-
-    const accessToken = jwt.sign(userObject, process.env.AUTH_SECRET ?? '');
-
-    req.body = {
-      status: 'Successfully logged in!',
-      access_token: accessToken,
-      email
-    };
-
-    next();
-  });
-}
-
-export async function authenticateToken(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  const authHeader = req.headers.authorization;
-  const token = (authHeader && authHeader.split(' ')[1]) ?? '';
-  if (!token) {
-    res.status(401).send('Forbidden');
-    return;
-  }
-
-  // verify user, if verfied, provide the current user attributes
-  jwt.verify(token, process.env.AUTH_SECRET ?? '', async (err, user) => {
-    if (err) {
-      res.status(403).send('Invalid Token');
-      return;
-    }
-
-    const userEmail = _.get(user, 'email');
-    const foundUser = await UserService.findByEmail(userEmail);
-
-    if (!foundUser) {
-      res.status(404).send('No user found with associated email');
-      return;
-    }
-
-    req.currentUser = foundUser;
-    next();
-  });
 }
 
 // --------------------GET---------------------
@@ -305,6 +306,7 @@ export function presentAll(req: Request, res: Response): void {
 export function presentLogin(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    ...req.body
+    ...req.body,
+    currentUser: _.omit(req.currentUser.toJSON(), 'password')
   });
 }
