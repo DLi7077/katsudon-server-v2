@@ -149,6 +149,10 @@ async function publicProfile(queryParams: any): Promise<any> {
     .populate({
       path: 'following',
       select: ['username', 'profile_picture_url']
+    })
+    .populate({
+      path: 'followers',
+      select: ['username', 'profile_picture_url']
     });
 
   return userDetails;
