@@ -45,24 +45,27 @@ async function update(attributes: UserAttributes): Promise<any> {
 
 /**
  * @description updates follow list for users due to a follow
- * @param {UserAttributes} attributes - The fields to update with
+ * @param {ObjectId} currentUserId - The Current User
+ * @param {ObjectId} toFollow - The User to follow
  * @returns {Promise<any>} Promise of an updated document
  */
-async function follow(attributes: UserAttributes): Promise<any> {
-  const follower = _.get(attributes, 'follower');
-  const following = _.get(attributes, 'following');
+async function follow(
+  currentUserId: ObjectId,
+  toFollow: ObjectId
+): Promise<any> {
   // safety logic, prevent follow if already following
   // add following to following list
   // add follower to follower list
+
   const follow_success = await Models.User.findByIdAndUpdate(
-    { _id: follower },
-    { $addToSet: { following } },
+    { _id: currentUserId },
+    { $addToSet: { following: toFollow } },
     { new: true, upsert: true }
   )
     .then(async (addedFollowing: any) => {
       const addedToFollowers = await Models.User.findByIdAndUpdate(
-        { _id: following },
-        { $addToSet: { followers: follower } },
+        { _id: toFollow },
+        { $addToSet: { followers: currentUserId } },
         { new: true, upsert: true }
       );
 
@@ -78,30 +81,30 @@ async function follow(attributes: UserAttributes): Promise<any> {
  * @param {UserAttributes} attributes - The fields to update with
  * @returns {Promise<any>} Promise of an updated document
  */
-async function unfollow(attributes: UserAttributes): Promise<any> {
-  const follower = _.get(attributes, 'follower');
-  const following = _.get(attributes, 'following');
-
+async function unfollow(
+  currentUserId: ObjectId,
+  toUnfollow: ObjectId
+): Promise<any> {
   // safety logic, prevent follow if already following
   // add following to following list
   // add follower to follower list
-  const unfollow_success = await Models.User.findByIdAndUpdate(
-    { _id: follower },
-    { $pull: { following } },
+  const unfollowSuccess = await Models.User.findByIdAndUpdate(
+    { _id: currentUserId },
+    { $pull: { following: toUnfollow } },
     { new: true, upsert: true }
   )
-    .then(async (addedFollowing: any) => {
-      const addedToFollowers = await Models.User.findByIdAndUpdate(
-        { _id: following },
-        { $pull: { followers: follower } },
+    .then(async (updateFollower: any) => {
+      const updateFollowing = await Models.User.findByIdAndUpdate(
+        { _id: toUnfollow },
+        { $pull: { followers: currentUserId } },
         { new: true, upsert: true }
       );
 
-      return [addedFollowing, addedToFollowers];
+      return [updateFollower, updateFollowing];
     })
     .catch();
 
-  return unfollow_success;
+  return unfollowSuccess;
 }
 
 async function addProblemToSolved(
