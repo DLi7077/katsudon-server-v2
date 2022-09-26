@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import _ from 'lodash';
-import { ObjectId } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { NotFoundResponse } from 'http-errors-response-ts/lib';
 import Models from '../database';
 import { UserAttributes } from '../database/models/User';
@@ -107,6 +107,45 @@ async function unfollow(
   return unfollowSuccess;
 }
 
+/**
+ * @description Edit User biography
+ * @param {ObjectId} userId
+ * @param {string} biography
+ * @returns {Promise<any>} Promise of updated User
+ */
+async function editBiography(
+  userId: ObjectId,
+  biography: string
+): Promise<any> {
+  return Models.User.findOneAndUpdate(
+    { _id: userId },
+    { biography: biography },
+    { new: true, upsert: true }
+  );
+}
+
+async function updateProfilePicture(
+  userId: ObjectId,
+  profilePictureURL: String
+): Promise<any> {
+  return Models.User.findOneAndUpdate(
+    { _id: userId },
+    { profile_picture_url: profilePictureURL },
+    { new: true, upsert: true }
+  );
+}
+
+async function updateProfileBanner(
+  userId: ObjectId,
+  profileBannerURL: String
+): Promise<any> {
+  return Models.User.findOneAndUpdate(
+    { _id: userId },
+    { profile_banner_url: profileBannerURL },
+    { new: true, upsert: true }
+  );
+}
+
 async function addProblemToSolved(
   user_id: ObjectId,
   problem_id: ObjectId
@@ -190,6 +229,9 @@ export default {
   update,
   follow,
   unfollow,
+  editBiography,
+  updateProfilePicture,
+  updateProfileBanner,
   addProblemToSolved,
   publicProfile,
   findByEmail,
