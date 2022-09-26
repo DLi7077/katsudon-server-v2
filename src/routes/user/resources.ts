@@ -13,9 +13,9 @@ import UserService from '../../service/user';
 import UserPresenter from '../../presenters/user';
 import Models from '../../database';
 import { UserLoginAttribute } from '../../types/Interface';
+import storage from '../../utils/GoogleCloudStorage';
 
 dotenv.config();
-
 // -----------------POST----------------------
 
 /**
@@ -198,6 +198,111 @@ export async function unfollowUser(
       req.body.message = `${users[0].username} unfollowed ${users[1].username}`;
       req.body.count = users.length;
       req.body.rows = users;
+    })
+    .catch(next);
+
+  return next();
+}
+/**
+ * @description Follows a user
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function editBiography(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await UserService.editBiography(
+    _.get(req.currentUser, '_id') as any,
+    _.get(req.body, 'biography')
+  )
+    .then((user: any) => {
+      req.body = user;
+    })
+    .catch(next);
+
+  return next();
+}
+
+/**
+ * @description Uploads profile picture to google cloud
+ */
+export async function uploadProfilePicture(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { file } = req;
+  if (!file) {
+    res.status(404);
+    res.send('No file found');
+    return next();
+  }
+
+  const baseUrl =
+    'https://storage.cloud.google.com/katsudon-assets/user-profiles';
+
+  const currentUserId: any = _.get(req.currentUser, '_id');
+
+  await storage
+    .bucket('katsudon-assets')
+    .file(`user-profiles/${currentUserId}/pfp.jpg`)
+    .save(file.buffer, {
+      metadata: { cacheControl: 'no-cache' }
+    })
+    .then(async () => {
+      const updatedProfileUrl = `${baseUrl}/${currentUserId}/pfp.jpg`;
+
+      await UserService.updateProfilePicture(
+        currentUserId,
+        updatedProfileUrl
+      ).then((updatedUser) => {
+        req.body = updatedUser;
+      });
+    })
+    .catch(next);
+
+  return next();
+}
+
+/**
+ * @description Uploads profile picture to google cloud
+ */
+export async function uploadProfileBanner(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { file } = req;
+  if (!file) {
+    res.status(404);
+    res.send('No file found');
+    return next();
+  }
+
+  const baseUrl =
+    'https://storage.cloud.google.com/katsudon-assets/user-profiles';
+
+  const currentUserId: any = _.get(req.currentUser, '_id');
+
+  await storage
+    .bucket('katsudon-assets')
+    .file(`user-profiles/${currentUserId}/banner.jpg`)
+    .save(file.buffer, {
+      metadata: { cacheControl: 'no-cache' }
+    })
+    .then(async () => {
+      const updatedProfileUrl = `${baseUrl}/${currentUserId}/banner.jpg`;
+
+      await UserService.updateProfileBanner(
+        currentUserId,
+        updatedProfileUrl
+      ).then((updatedUser) => {
+        req.body = updatedUser;
+      });
     })
     .catch(next);
 

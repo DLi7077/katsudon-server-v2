@@ -10,22 +10,13 @@
     "noImplicitAny": true,
     "moduleResolution": "node",
     "sourceMap": true,
-    "typeRoots": [
-      "./src/types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "*": [
-        "node_modules/*",
-        "src/types/*"
-      ]
-    }
+      "*": ["node_modules/*", "src/types/*"]
+    },
+    "types": ["node"]
   },
-  "include": [
-    "src/**/*",
-    "bin/*",
-    "config/*"
-  ]
+  "include": ["src/**/*", "bin/*", "config/*"]
 }

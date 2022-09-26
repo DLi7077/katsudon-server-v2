@@ -12,6 +12,7 @@ export interface UserAttributes {
   followers: ObjectId[];
   solved: ObjectId[];
   profile_picture_url?: string;
+  profile_banner_url?: string;
   created_at: Date;
   updated_at: Date;
   deleted_at?: Date;
@@ -43,6 +44,10 @@ export const userSchema: Schema<UserAttributes> = new Schema<UserAttributes>({
     index: true
   },
   profile_picture_url: {
+    type: String,
+    required: false
+  },
+  profile_banner_url: {
     type: String,
     required: false
   },
