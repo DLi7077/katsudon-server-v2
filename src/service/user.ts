@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import _ from 'lodash';
-import { Model, ObjectId } from 'mongoose';
+import { ObjectId } from 'mongoose';
 import { NotFoundResponse } from 'http-errors-response-ts/lib';
 import Models from '../database';
 import { UserAttributes } from '../database/models/User';
@@ -119,14 +119,14 @@ async function editBiography(
 ): Promise<any> {
   return Models.User.findOneAndUpdate(
     { _id: userId },
-    { biography: biography },
+    { biography },
     { new: true, upsert: true }
   );
 }
 
 async function updateProfilePicture(
   userId: ObjectId,
-  profilePictureURL: String
+  profilePictureURL: string
 ): Promise<any> {
   return Models.User.findOneAndUpdate(
     { _id: userId },
@@ -137,7 +137,7 @@ async function updateProfilePicture(
 
 async function updateProfileBanner(
   userId: ObjectId,
-  profileBannerURL: String
+  profileBannerURL: string
 ): Promise<any> {
   return Models.User.findOneAndUpdate(
     { _id: userId },

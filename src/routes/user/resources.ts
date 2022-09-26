@@ -14,6 +14,7 @@ import UserPresenter from '../../presenters/user';
 import Models from '../../database';
 import { UserLoginAttribute } from '../../types/Interface';
 import storage from '../../utils/GoogleCloudStorage';
+
 dotenv.config();
 // -----------------POST----------------------
 
@@ -233,12 +234,12 @@ export async function uploadProfilePicture(
   req: Request,
   res: Response,
   next: NextFunction
-) {
-  const file: any = req.file;
+): Promise<void> {
+  const { file } = req;
   if (!file) {
     res.status(404);
     res.send('No file found');
-    return;
+    return next();
   }
 
   const baseUrl =
@@ -262,7 +263,7 @@ export async function uploadProfilePicture(
         req.body = updatedUser;
       });
     })
-    .catch(console.error);
+    .catch(next);
 
   return next();
 }
@@ -274,12 +275,12 @@ export async function uploadProfileBanner(
   req: Request,
   res: Response,
   next: NextFunction
-) {
-  const file: any = req.file;
+): Promise<void> {
+  const { file } = req;
   if (!file) {
     res.status(404);
     res.send('No file found');
-    return;
+    return next();
   }
 
   const baseUrl =
@@ -303,7 +304,7 @@ export async function uploadProfileBanner(
         req.body = updatedUser;
       });
     })
-    .catch(console.error);
+    .catch(next);
 
   return next();
 }
