@@ -128,6 +128,7 @@ async function updateProfilePicture(
   userId: ObjectId,
   profilePictureURL: string
 ): Promise<any> {
+  console.log(profilePictureURL);
   return Models.User.findOneAndUpdate(
     { _id: userId },
     { profile_picture_url: profilePictureURL },
