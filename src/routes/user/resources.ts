@@ -243,7 +243,7 @@ export async function uploadProfilePicture(
   }
 
   const baseUrl =
-    'https://storage.googleapis.com/katsudon-assets/user-profiles/';
+    'https://storage.googleapis.com/katsudon-assets/user-profiles';
 
   const currentUserId: any = _.get(req.currentUser, '_id');
 
@@ -284,7 +284,7 @@ export async function uploadProfileBanner(
   }
 
   const baseUrl =
-    'https://storage.googleapis.com/katsudon-assets/user-profiles/';
+    'https://storage.googleapis.com/katsudon-assets/user-profiles';
 
   const currentUserId: any = _.get(req.currentUser, '_id');
 
