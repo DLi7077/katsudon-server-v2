@@ -7,8 +7,9 @@ export interface SolutionAttributes {
   problem_id: ObjectId;
   solution_language: string;
   solution_code: string;
-  runtime_ms: number;
-  memory_usage_mb: number;
+  failed?: boolean;
+  runtime_ms?: number;
+  memory_usage_mb?: number;
   created_at: Date;
 }
 
@@ -40,11 +41,15 @@ export const SolutionSchema: Schema<SolutionAttributes> = new Schema({
   },
   runtime_ms: {
     type: Number,
-    required: true
+    required: false
   },
   memory_usage_mb: {
     type: Number,
-    required: true
+    required: false
+  },
+  failed: {
+    type: Boolean,
+    required: false
   },
   created_at: {
     type: Date,
