@@ -33,12 +33,13 @@ export async function createSolution(
       })
       .catch(next);
 
-    const solver_id = _.get(solution, 'user_id');
-    const problem_id = _.get(problem, '_id');
-
-    await UserService.addProblemToSolved(solver_id, problem_id).catch(next);
-    await ProblemService.addSolver(problem_id, solver_id).catch(next);
-
+    const failedSolution = _.get(req.body.solution, 'failed');
+    if (!failedSolution) {
+      const solver_id = _.get(solution, 'user_id');
+      const problem_id = _.get(problem, '_id');
+      await UserService.addProblemToSolved(solver_id, problem_id).catch(next);
+      await ProblemService.addSolver(problem_id, solver_id).catch(next);
+    }
     await session.commitTransaction();
     session.endSession();
   } catch (err) {

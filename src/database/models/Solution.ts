@@ -8,6 +8,7 @@ export interface SolutionAttributes {
   solution_language: string;
   solution_code: string;
   failed?: boolean;
+  error?: string;
   runtime_ms?: number;
   memory_usage_mb?: number;
   created_at: Date;
@@ -49,6 +50,10 @@ export const SolutionSchema: Schema<SolutionAttributes> = new Schema({
   },
   failed: {
     type: Boolean,
+    required: false
+  },
+  error: {
+    type: String,
     required: false
   },
   created_at: {
