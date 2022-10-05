@@ -13,7 +13,7 @@ export default function groupSolutionsByDate(solutionList: any[]): any {
       _.get(solutionDetails, 'solutions'),
       (accumulator: any, solution: any) => {
         const language = _.get(solution, 'solution_language');
-        accumulator.failed = accumulator.failed || !!solution.failed;
+        accumulator.failed = accumulator.failed && !!solution.failed;
         if (mostRecentDate < solution.created_at) {
           mostRecentDate = solution.created_at;
         }
@@ -28,7 +28,7 @@ export default function groupSolutionsByDate(solutionList: any[]): any {
 
         return accumulator;
       },
-      { failed: false }
+      { failed: true }
     );
 
     return {

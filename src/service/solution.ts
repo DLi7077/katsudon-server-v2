@@ -1,9 +1,10 @@
 /* eslint-disable camelcase */
 import _ from 'lodash';
-import { Types } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import Models from '../database';
 import { SolutionAttributes } from '../database/models/Solution';
 import groupSolutionsByDate from '../utils/Problem';
+import computeTrueWeek from '../utils/TrueWeek';
 
 /**
  * @description Creates a submission, upserts the problem solved
@@ -271,8 +272,122 @@ async function findAll(queryParams: any): Promise<any> {
   };
 }
 
+/**
+ * @description Finds weekly progress of current user and users they follow
+ * @returns {Promise<any>} Promise of weekly progress solutions
+ */
+async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
+  const currentUserFollowing: ObjectId[] = await Models.User.findById(
+    currentUserId
+  ).then((user: any) => [...user.following, currentUserId]);
+  const currentYearWeek: number = computeTrueWeek();
+  const currentYear: number = new Date().getFullYear();
+
+  const matchWeek = {
+    $expr: {
+      $eq: [
+        currentYearWeek,
+        { $week: { date: '$created_at', timezone: 'America/New_York' } }
+      ]
+    }
+  };
+  const matchYear = {
+    $expr: {
+      $eq: [
+        currentYear,
+        { $year: { date: '$created_at', timezone: 'America/New_York' } }
+      ]
+    }
+  };
+
+  const matchIsFollowing = {
+    user_id: { $in: currentUserFollowing }
+  };
+
+  const weeklySolutions: any = await Models.Solution.aggregate([
+    {
+      $match: { $and: [matchWeek, matchYear, matchIsFollowing] }
+    },
+    {
+      $sort: { created_at: -1 }
+    },
+    {
+      $lookup: {
+        from: 'problems',
+        localField: 'problem_id',
+        foreignField: '_id',
+        as: 'problem'
+      }
+    },
+    { $unwind: '$problem' },
+    {
+      $group: {
+        _id: { user_id: '$user_id', problem_id: '$problem.id' },
+        solution: { $first: '$$ROOT' }
+      }
+    },
+    {
+      $group: {
+        _id: { user_id: '$_id.user_id' },
+        solutions: { $push: '$$ROOT' }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id.user_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        user_id: '$user._id',
+        username: '$user.username',
+        profile_picture_url: '$user.profile_picture_url',
+        _id: false,
+        solutions: true
+      }
+    }
+  ]);
+
+  const weeklySolutionsByDate = _.chain(weeklySolutions)
+    .map((userSolutions: any) => {
+      const updatedSolutionDetails = userSolutions;
+      // determine most recent date for each user
+      updatedSolutionDetails.last_solved = _.reduce(
+        updatedSolutionDetails.solutions,
+        (mostRecentSolved: any, solutionDetail: any) => {
+          const incomingDate = _.get(solutionDetail, 'solution.created_at');
+
+          return !mostRecentSolved || incomingDate > mostRecentSolved
+            ? incomingDate
+            : mostRecentSolved;
+        },
+        null
+      );
+
+      updatedSolutionDetails.solutions = _.chain(
+        updatedSolutionDetails.solutions
+      )
+        .map((solution) => _.omit(solution, '_id'))
+        .orderBy(['solution.created_at'], ['desc']);
+
+      return updatedSolutionDetails;
+    })
+    .orderBy(['last_solved'], ['desc'])
+    .value();
+
+  return {
+    count: weeklySolutionsByDate.length,
+    rows: weeklySolutionsByDate
+  };
+}
+
 export default {
   create,
   findAll,
-  findAllFromUserId
+  findAllFromUserId,
+  weeklyProgress
 };
