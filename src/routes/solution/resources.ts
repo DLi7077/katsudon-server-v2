@@ -99,6 +99,28 @@ export async function findAllSolutionsFromUserId(
 }
 
 /**
+ * @description finds weekly solutions from a user and users they follow
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function findWeeklyProgressSolutions(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const currentUserId: any = _.get(req.currentUser, '_id');
+  await SolutionService.weeklyProgress(currentUserId)
+    .then((result: any) => {
+      req.body = result;
+    })
+    .catch(next);
+
+  return next();
+}
+
+/**
  * @description Presents a solution
  * @param {Request} req - the HTTP request object
  * @param {Response} res - the HTTP response object
