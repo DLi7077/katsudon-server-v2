@@ -274,6 +274,7 @@ async function findAll(queryParams: any): Promise<any> {
 
 /**
  * @description Finds weekly progress of current user and users they follow
+ * @param {ObjectId} currentUserId ID of the current user
  * @returns {Promise<any>} Promise of weekly progress solutions
  */
 async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
@@ -326,10 +327,29 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
         solution: { $first: '$$ROOT' }
       }
     },
+    // group by weekday
+    {
+      $project: {
+        solution: true,
+        weekday: {
+          $dayOfWeek: { date: '$solution.created_at' }
+        },
+        date: {
+          $dateToString: {
+            date: '$solution.created_at',
+            timezone: 'America/New_York'
+          }
+        }
+      }
+    },
     {
       $group: {
-        _id: { user_id: '$_id.user_id' },
-        solutions: { $push: '$$ROOT' }
+        _id: {
+          user_id: '$_id.user_id',
+          weekday: '$weekday'
+        },
+        solutions: { $push: '$$ROOT' },
+        date: { $first: '$date' }
       }
     },
     {
@@ -347,6 +367,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
         username: '$user.username',
         profile_picture_url: '$user.profile_picture_url',
         _id: false,
+        date: true, 
         solutions: true
       }
     }
