@@ -180,6 +180,16 @@ function getUserSolutionQuery(): any[] {
   return [
     { $sort: { created_at: -1 } },
     {
+      $set: {
+        created_at: {
+          $dateToString: {
+            date: '$created_at',
+            timezone: 'America/New_York'
+          }
+        }
+      }
+    },
+    {
       $group: {
         _id: {
           user_id: '$user_id',
@@ -278,28 +288,39 @@ async function findAll(queryParams: any): Promise<any> {
  * @returns {Promise<any>} Promise of weekly progress solutions
  */
 async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
+  // no longer used, will be changed to past 7 days instead of current week
+
+  // const currentYearWeek: number = computeTrueWeek();
+  // const currentYear: number = new Date().getFullYear();
+  // const matchWeek = {
+  //   $expr: {
+  //     $eq: [
+  //       currentYearWeek,
+  //       { $week: { date: '$created_at', timezone: 'America/New_York' } }
+  //     ]
+  //   }
+  // };
+  // const matchYear = {
+  //   $expr: {
+  //     $eq: [
+  //       currentYear,
+  //       { $year: { date: '$created_at', timezone: 'America/New_York' } }
+  //     ]
+  //   }
+  // };
+
+  // match all documents within previous N days
+  function previousNdays(n: number): any {
+    return {
+      created_at: {
+        $gte: new Date(new Date().getTime() - n * 24 * 60 * 60 * 1000)
+      }
+    };
+  }
+
   const currentUserFollowing: ObjectId[] = await Models.User.findById(
     currentUserId
   ).then((user: any) => [...user.following, currentUserId]);
-  const currentYearWeek: number = computeTrueWeek();
-  const currentYear: number = new Date().getFullYear();
-
-  const matchWeek = {
-    $expr: {
-      $eq: [
-        currentYearWeek,
-        { $week: { date: '$created_at', timezone: 'America/New_York' } }
-      ]
-    }
-  };
-  const matchYear = {
-    $expr: {
-      $eq: [
-        currentYear,
-        { $year: { date: '$created_at', timezone: 'America/New_York' } }
-      ]
-    }
-  };
 
   const matchIsFollowing = {
     user_id: { $in: currentUserFollowing }
@@ -307,7 +328,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
 
   const weeklySolutions: any = await Models.Solution.aggregate([
     {
-      $match: { $and: [matchWeek, matchYear, matchIsFollowing] }
+      $match: { $and: [matchIsFollowing, previousNdays(7)] }
     },
     {
       $sort: { created_at: -1 }
@@ -332,7 +353,10 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
       $project: {
         solution: true,
         weekday: {
-          $dayOfWeek: { date: '$solution.created_at' }
+          $add: [
+            { $dayOfYear: '$solution.created_at' },
+            { $multiply: [366, { $year: '$solution.created_at' }] }
+          ]
         },
         date: {
           $dateToString: {
@@ -342,6 +366,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
         }
       }
     },
+    { $sort: { date: -1 } },
     {
       $group: {
         _id: {
@@ -367,7 +392,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
         username: '$user.username',
         profile_picture_url: '$user.profile_picture_url',
         _id: false,
-        date: true, 
+        date: true,
         solutions: true
       }
     }

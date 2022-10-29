@@ -14,7 +14,7 @@ export default function groupSolutionsByDate(solutionList: any[]): any {
       (accumulator: any, solution: any) => {
         const language = _.get(solution, 'solution_language');
 
-        if (mostRecentDate < solution.created_at) {
+        if (!mostRecentDate || mostRecentDate < solution.created_at) {
           mostRecentDate = solution.created_at;
           // determine if failed solution based on most recent submission
           accumulator.failed = !!solution.failed;
