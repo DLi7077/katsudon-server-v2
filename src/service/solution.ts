@@ -4,7 +4,6 @@ import { ObjectId, Types } from 'mongoose';
 import Models from '../database';
 import { SolutionAttributes } from '../database/models/Solution';
 import groupSolutionsByDate from '../utils/Problem';
-import computeTrueWeek from '../utils/TrueWeek';
 
 /**
  * @description Creates a submission, upserts the problem solved
