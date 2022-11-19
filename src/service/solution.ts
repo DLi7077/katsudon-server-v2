@@ -326,7 +326,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
   const randomUserIds: ObjectId[] = await Models.User.aggregate([
     { $match: { _id: { $nin: userFollowing } } },
     { $sample: { size: RANDOM_USER_COUNT } }
-  ]).then((users: UserAttributes[]) => users.map((user) => user._id));
+  ]).then((users: UserAttributes[]) => users.map((user) => _.get(user, '_id')));
 
   const weeklySolutions: any = await Models.Solution.aggregate([
     {
