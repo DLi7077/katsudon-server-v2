@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { ObjectId, Types } from 'mongoose';
 import Models from '../database';
 import { SolutionAttributes } from '../database/models/Solution';
+import { UserAttributes } from '../database/models/User';
 import groupSolutionsByDate from '../utils/Problem';
 
 /**
@@ -317,17 +318,24 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
     };
   }
 
-  const currentUserFollowing: ObjectId[] = await Models.User.findById(
+  const userFollowing: ObjectId[] = await Models.User.findById(
     currentUserId
   ).then((user: any) => [...user.following, currentUserId]);
 
-  const matchIsFollowing = {
-    user_id: { $in: currentUserFollowing }
-  };
+  const RANDOM_USER_COUNT = 10;
+  const randomUserIds: ObjectId[] = await Models.User.aggregate([
+    { $match: { _id: { $nin: userFollowing } } },
+    { $sample: { size: RANDOM_USER_COUNT } }
+  ]).then((users: UserAttributes[]) => users.map((user) => user._id));
 
   const weeklySolutions: any = await Models.Solution.aggregate([
     {
-      $match: { $and: [matchIsFollowing, previousNdays(7)] }
+      $match: {
+        $and: [
+          { user_id: { $in: [...userFollowing, ...randomUserIds] } },
+          previousNdays(7)
+        ]
+      }
     },
     {
       $sort: { created_at: -1 }
@@ -341,13 +349,13 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
       }
     },
     { $unwind: '$problem' },
+    // group by user and problem
     {
       $group: {
         _id: { user_id: '$user_id', problem_id: '$problem.id' },
         solution: { $first: '$$ROOT' }
       }
     },
-    // group by weekday
     {
       $project: {
         solution: true,
@@ -366,6 +374,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
       }
     },
     { $sort: { date: -1 } },
+    // group by user and day
     {
       $group: {
         _id: {
