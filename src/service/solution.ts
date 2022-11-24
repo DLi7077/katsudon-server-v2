@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
 import _ from 'lodash';
 import { ObjectId, Types } from 'mongoose';
+import getCodeLength from '../utils/CodeLength';
 import Models from '../database';
 import { SolutionAttributes } from '../database/models/Solution';
 import { UserAttributes } from '../database/models/User';
 import groupSolutionsByDate from '../utils/Problem';
-
 /**
  * @description Creates a submission, upserts the problem solved
  * @param {SolutionAttributes} attributes - the solution attribute object
@@ -35,6 +35,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
   // create the solution
   const createdSolution = await Models.Solution.create({
     ...attributes,
+    solution_length: getCodeLength(_.get(attributes, 'solution_code')),
     problem_id: _.get(updatedProblem, '_id'),
     created_at: new Date()
   });
