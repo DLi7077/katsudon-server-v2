@@ -4,11 +4,7 @@ import bodyParser from 'body-parser';
 import routes from './routes';
 
 const app = express();
-app.use(
-  cors({
-    origin: '*'
-  })
-);
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.json());
 
 const port: any = process.env.PORT || 3001;
