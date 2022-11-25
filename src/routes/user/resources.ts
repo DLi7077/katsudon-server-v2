@@ -9,6 +9,7 @@ import _ from 'lodash';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
+import { ObjectId } from 'mongoose';
 import UserService from '../../service/user';
 import UserPresenter from '../../presenters/user';
 import Models from '../../database';
@@ -350,6 +351,31 @@ export async function findUserByEmail(
 ): Promise<void> {
   const email: any = _.get(req.query, 'email') ?? '';
   const foundUser = await UserService.findByEmail(email).catch(next);
+  if (!foundUser) {
+    const noUserError = new NotFoundResponse('No associated account');
+    return next(noUserError);
+  }
+  req.body = foundUser;
+
+  return next();
+}
+
+/**
+ * @description Finds a user by id
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function findUserById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  id: ObjectId
+): Promise<void> {
+  const foundUser = await UserService.findById(id).catch(() => {
+    return next(new NotFoundResponse('No associated account'));
+  });
   if (!foundUser) {
     const noUserError = new NotFoundResponse('No associated account');
     return next(noUserError);

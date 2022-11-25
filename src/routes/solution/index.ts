@@ -24,6 +24,4 @@ router.get(
 );
 router.post('/create', createSolution, present);
 
-router.get('/:userId', presentAll);
-
 export default router;
