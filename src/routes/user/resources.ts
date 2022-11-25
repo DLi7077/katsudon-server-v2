@@ -14,6 +14,7 @@ import UserPresenter from '../../presenters/user';
 import Models from '../../database';
 import { UserLoginAttribute } from '../../types/Interface';
 import storage from '../../utils/GoogleCloudStorage';
+import { ObjectId } from 'mongoose';
 
 dotenv.config();
 // -----------------POST----------------------
@@ -360,6 +361,31 @@ export async function findUserByEmail(
 }
 
 /**
+ * @description Finds a user by id
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - callback to the next route function
+ * @returns {Promise<void>} Returns next function to execute
+ */
+export async function findUserById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  id: ObjectId
+): Promise<void> {
+  const foundUser = await UserService.findById(id).catch(() => {
+    return next(new NotFoundResponse('No associated account'));
+  });
+  if (!foundUser) {
+    const noUserError = new NotFoundResponse('No associated account');
+    return next(noUserError);
+  }
+  req.body = foundUser;
+
+  return next();
+}
+
+/**
  * @description Finds a user
  * @param {Request} req - the HTTP request object
  * @param {Response} res - the HTTP response object
@@ -407,6 +433,7 @@ export function presentAll(req: Request, res: Response): void {
     users: UserPresenter.presentAll(req.body.rows)
   });
 }
+
 
 export function presentLogin(req: Request, res: Response): void {
   res.status(200);

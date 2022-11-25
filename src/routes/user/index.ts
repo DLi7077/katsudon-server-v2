@@ -7,6 +7,7 @@ import {
   login,
   authenticateToken,
   findUserProfile,
+  findUserById,
   findUserByEmail,
   findAllUsers,
   presentUser,
@@ -26,9 +27,12 @@ const multer = Multer({
   limits: { fileSize: 5 * MB }
 });
 
+router.param('userId', findUserById);
+
 router.get('/all', findAllUsers, presentAll);
 router.get('/profile', findUserProfile, presentUser);
 router.get('/find-by-email', findUserByEmail, presentUser);
+router.get('/jwt-retrieve', authenticateToken, presentLogin);
 
 router.post('/create', createUser, presentUser);
 router.post('/login', login, authenticateToken, presentLogin);
@@ -50,5 +54,7 @@ router.post(
   uploadProfileBanner,
   presentUser
 );
+
+router.get('/id/:userId', presentUser);
 
 export default router;

@@ -16,7 +16,7 @@ router.param('userId', findAllSolutionsFromUserId);
 
 router.get('/all', findAll, presentAll);
 
-router.get(
+router.get( 
   '/weekly-progress',
   authenticateToken,
   findWeeklyProgressSolutions,
@@ -24,6 +24,5 @@ router.get(
 );
 router.post('/create', createSolution, present);
 
-router.get('/:userId', presentAll);
 
 export default router;
