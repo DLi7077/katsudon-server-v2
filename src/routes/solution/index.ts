@@ -16,13 +16,12 @@ router.param('userId', findAllSolutionsFromUserId);
 
 router.get('/all', findAll, presentAll);
 
-router.get( 
+router.get(
   '/weekly-progress',
   authenticateToken,
   findWeeklyProgressSolutions,
   presentAll
 );
 router.post('/create', createSolution, present);
-
 
 export default router;

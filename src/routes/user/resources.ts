@@ -9,12 +9,12 @@ import _ from 'lodash';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
+import { ObjectId } from 'mongoose';
 import UserService from '../../service/user';
 import UserPresenter from '../../presenters/user';
 import Models from '../../database';
 import { UserLoginAttribute } from '../../types/Interface';
 import storage from '../../utils/GoogleCloudStorage';
-import { ObjectId } from 'mongoose';
 
 dotenv.config();
 // -----------------POST----------------------
@@ -433,7 +433,6 @@ export function presentAll(req: Request, res: Response): void {
     users: UserPresenter.presentAll(req.body.rows)
   });
 }
-
 
 export function presentLogin(req: Request, res: Response): void {
   res.status(200);
