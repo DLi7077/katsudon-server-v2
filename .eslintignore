@@ -1,6 +1,5 @@
 # /node_modules/* ignored by default
 dist/*
-coverage/*
 # data definition files
 **/*.d.ts
 # 3rd party libs

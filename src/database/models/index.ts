@@ -6,7 +6,7 @@ import SolutionModel from './Solution';
 const db: DatabaseModels = {
   UserModel,
   ProblemModel,
-  SolutionModel
+  SolutionModel,
 };
 
 export default db;
