@@ -36,7 +36,7 @@ export default function groupSolutionsByDate(solutionList: any[]): any {
     return {
       ..._.omit(solutionDetails, 'solutions'),
       solutions: groupByLanguageAndDate,
-      last_solved_at: mostRecentDate
+      last_solved_at: mostRecentDate,
     };
   });
 

@@ -3,7 +3,7 @@
 import { Request, Response, NextFunction } from 'express';
 import {
   ConflictResponse,
-  NotFoundResponse
+  NotFoundResponse,
 } from 'http-errors-response-ts/lib';
 import _ from 'lodash';
 import bcrypt from 'bcrypt';
@@ -50,7 +50,7 @@ export async function login(
 
     const userObject: UserLoginAttribute = _.pick(req.body, [
       'email',
-      'password'
+      'password',
     ]);
 
     const accessToken = jwt.sign(userObject, process.env.AUTH_SECRET ?? '');
@@ -58,7 +58,7 @@ export async function login(
     req.body = {
       status: 'Successfully logged in!',
       access_token: accessToken,
-      email
+      email,
     };
 
     req.headers.authorization = `Bearer ${accessToken}`;
@@ -252,7 +252,7 @@ export async function uploadProfilePicture(
     .bucket('katsudon-assets')
     .file(`user-profiles/${currentUserId}/pfp.jpg`)
     .save(file.buffer, {
-      metadata: { cacheControl: 'no-cache' }
+      metadata: { cacheControl: 'no-cache' },
     })
     .then(async () => {
       const updatedProfileUrl = `${baseUrl}/${currentUserId}/pfp.jpg`;
@@ -293,7 +293,7 @@ export async function uploadProfileBanner(
     .bucket('katsudon-assets')
     .file(`user-profiles/${currentUserId}/banner.jpg`)
     .save(file.buffer, {
-      metadata: { cacheControl: 'no-cache' }
+      metadata: { cacheControl: 'no-cache' },
     })
     .then(async () => {
       const updatedProfileUrl = `${baseUrl}/${currentUserId}/banner.jpg`;
@@ -415,7 +415,7 @@ export async function findAllUsers(
 export function presentUser(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    user: UserPresenter.present(req.body)
+    user: UserPresenter.present(req.body),
   });
 }
 
@@ -430,7 +430,7 @@ export function presentAll(req: Request, res: Response): void {
   res.json({
     message: req.body.message ?? '',
     count: req.body.count,
-    users: UserPresenter.presentAll(req.body.rows)
+    users: UserPresenter.presentAll(req.body.rows),
   });
 }
 
@@ -438,6 +438,6 @@ export function presentLogin(req: Request, res: Response): void {
   res.status(200);
   res.json({
     ...req.body,
-    currentUser: _.omit(req.currentUser.toJSON(), 'password')
+    currentUser: _.omit(req.currentUser.toJSON(), 'password'),
   });
 }

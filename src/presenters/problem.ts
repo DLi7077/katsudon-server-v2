@@ -11,5 +11,5 @@ function presentAll(problems: any[]): any[] {
 
 export default {
   present,
-  presentAll
+  presentAll,
 };

@@ -129,7 +129,7 @@ export async function findWeeklyProgressSolutions(
 export function present(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    solution: SolutionPresenter.present(req.body.solution)
+    solution: SolutionPresenter.present(req.body.solution),
   });
 }
 

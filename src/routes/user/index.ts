@@ -15,7 +15,7 @@ import {
   presentLogin,
   editBiography,
   uploadProfilePicture,
-  uploadProfileBanner
+  uploadProfileBanner,
 } from './resources';
 
 const router = express.Router();
@@ -24,7 +24,7 @@ const MB = 1024 * 1024;
 
 const multer = Multer({
   storage: Multer.memoryStorage(),
-  limits: { fileSize: 5 * MB }
+  limits: { fileSize: 5 * MB },
 });
 
 router.param('userId', findUserById);

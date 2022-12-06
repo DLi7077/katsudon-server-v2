@@ -23,7 +23,7 @@ async function create(attributes: SolutionAttributes): Promise<any> {
       'alt=""',
       'alt="visual" style ="height:auto; max-width:100%;"'
     ),
-    tags: _.get(attributes, 'problem_tags')
+    tags: _.get(attributes, 'problem_tags'),
   };
 
   const updatedProblem = await Models.Problem.findOneAndUpdate(
@@ -37,12 +37,12 @@ async function create(attributes: SolutionAttributes): Promise<any> {
     ...attributes,
     solution_length: getCodeLength(_.get(attributes, 'solution_code')),
     problem_id: _.get(updatedProblem, '_id'),
-    created_at: new Date()
+    created_at: new Date(),
   });
 
   return {
     problem: updatedProblem,
-    solution: createdSolution
+    solution: createdSolution,
   };
 }
 
@@ -59,26 +59,26 @@ async function findAllFromUserId(userId: any): Promise<any> {
       $group: {
         _id: {
           field_1: '$problem_id',
-          field_2: '$solution_language'
+          field_2: '$solution_language',
         },
-        solution: { $first: '$$ROOT' }
-      }
+        solution: { $first: '$$ROOT' },
+      },
     },
     {
       $lookup: {
         from: 'problems',
         localField: 'solution.problem_id',
         foreignField: 'id',
-        as: 'problem'
-      }
+        as: 'problem',
+      },
     },
     {
       $project: {
         _id: false,
         solution: true,
-        problem: { $first: '$problem' }
-      }
-    }
+        problem: { $first: '$problem' },
+      },
+    },
   ]);
 
   const questionSet = new Set();
@@ -95,7 +95,7 @@ async function findAllFromUserId(userId: any): Promise<any> {
       }
 
       const solutionDetails = {
-        [solution_language]: _.omit(_.get(currSolution, 'solution'), '_id')
+        [solution_language]: _.omit(_.get(currSolution, 'solution'), '_id'),
       };
       const incomingDate = _.get(currSolution, 'solution.created_at');
 
@@ -112,8 +112,8 @@ async function findAllFromUserId(userId: any): Promise<any> {
         problem: _.omit(currSolution.problem, '_id'),
         solutions: {
           recent: incomingDate,
-          ...solutionDetails
-        }
+          ...solutionDetails,
+        },
       };
 
       return accumulator;
@@ -122,8 +122,8 @@ async function findAllFromUserId(userId: any): Promise<any> {
       difficulty_distribution: {
         Easy: 0,
         Medium: 0,
-        Hard: 0
-      }
+        Hard: 0,
+      },
     }
   );
 
@@ -134,7 +134,7 @@ function defaultQueryParams(queryParams: any): any {
   return {
     sortBy: 'problem_id',
     sortDir: 'asc',
-    ...queryParams
+    ...queryParams,
   };
 }
 
@@ -159,14 +159,14 @@ function validateQueryParams(queryParams: any, queryKeys: string[]): any {
 function getSortParams(queryParams: any[]): any {
   const sortMapping: any = {
     problem_id: 'problem.id',
-    created_at: 'last_solved_at'
+    created_at: 'last_solved_at',
   };
 
   const baseQuery: any = defaultQueryParams(queryParams);
   if (sortMapping[baseQuery.sortBy]) {
     return {
       sortBy: sortMapping[baseQuery.sortBy],
-      sortDir: baseQuery.sortDir
+      sortDir: baseQuery.sortDir,
     };
   }
 
@@ -185,39 +185,39 @@ function getUserSolutionQuery(): any[] {
         created_at: {
           $dateToString: {
             date: '$created_at',
-            timezone: 'America/New_York'
-          }
-        }
-      }
+            timezone: 'America/New_York',
+          },
+        },
+      },
     },
     {
       $group: {
         _id: {
           user_id: '$user_id',
-          problem: '$problem_id'
+          problem: '$problem_id',
         },
         problem: { $first: '$problem_id' },
         solutions: {
-          $push: '$$ROOT'
-        }
-      }
+          $push: '$$ROOT',
+        },
+      },
     },
     {
       $lookup: {
         from: 'problems',
         localField: 'problem',
         foreignField: '_id',
-        as: 'problem'
-      }
+        as: 'problem',
+      },
     },
     { $unwind: '$problem' },
     {
       $project: {
         _id: false,
         problem: true,
-        solutions: true
-      }
-    }
+        solutions: true,
+      },
+    },
   ];
 }
 
@@ -235,7 +235,7 @@ async function findAll(queryParams: any): Promise<any> {
   // translate problem number to database id for filter if requested
   const problemNumber: Types.ObjectId = builtQuery.problem_id
     ? await Models.Problem.findOne({
-        id: builtQuery.problem_id
+        id: builtQuery.problem_id,
       }).then((problem: any) => _.get(problem, '_id'))
     : null;
 
@@ -271,7 +271,7 @@ async function findAll(queryParams: any): Promise<any> {
   const userSolutions: any = await Models.Solution.aggregate([
     { $match: preQueryParams.length ? { $and: preQueryParams } : {} },
     ...userSolutionsQuery,
-    { $match: postQueryParams.length ? { $and: postQueryParams } : {} }
+    { $match: postQueryParams.length ? { $and: postQueryParams } : {} },
   ]).then((solutions: any[]) => {
     const groupedSolutions = groupSolutionsByDate(solutions);
     return _.orderBy(groupedSolutions, [sortBy], [sortDir]);
@@ -279,7 +279,7 @@ async function findAll(queryParams: any): Promise<any> {
 
   return {
     count: userSolutions.length,
-    rows: userSolutions
+    rows: userSolutions,
   };
 }
 
@@ -314,8 +314,8 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
   function previousNdays(n: number): any {
     return {
       created_at: {
-        $gte: new Date(new Date().getTime() - n * 24 * 60 * 60 * 1000)
-      }
+        $gte: new Date(new Date().getTime() - n * 24 * 60 * 60 * 1000),
+      },
     };
   }
 
@@ -326,7 +326,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
   const RANDOM_USER_COUNT = 10;
   const randomUserIds: ObjectId[] = await Models.User.aggregate([
     { $match: { _id: { $nin: userFollowing } } },
-    { $sample: { size: RANDOM_USER_COUNT } }
+    { $sample: { size: RANDOM_USER_COUNT } },
   ]).then((users: UserAttributes[]) => users.map((user) => _.get(user, '_id')));
 
   const weeklySolutions: any = await Models.Solution.aggregate([
@@ -334,28 +334,28 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
       $match: {
         $and: [
           { user_id: { $in: [...userFollowing, ...randomUserIds] } },
-          previousNdays(7)
-        ]
-      }
+          previousNdays(7),
+        ],
+      },
     },
     {
-      $sort: { created_at: -1 }
+      $sort: { created_at: -1 },
     },
     {
       $lookup: {
         from: 'problems',
         localField: 'problem_id',
         foreignField: '_id',
-        as: 'problem'
-      }
+        as: 'problem',
+      },
     },
     { $unwind: '$problem' },
     // group by user and problem
     {
       $group: {
         _id: { user_id: '$user_id', problem_id: '$problem.id' },
-        solution: { $first: '$$ROOT' }
-      }
+        solution: { $first: '$$ROOT' },
+      },
     },
     {
       $project: {
@@ -363,16 +363,16 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
         weekday: {
           $add: [
             { $dayOfYear: '$solution.created_at' },
-            { $multiply: [366, { $year: '$solution.created_at' }] }
-          ]
+            { $multiply: [366, { $year: '$solution.created_at' }] },
+          ],
         },
         date: {
           $dateToString: {
             date: '$solution.created_at',
-            timezone: 'America/New_York'
-          }
-        }
-      }
+            timezone: 'America/New_York',
+          },
+        },
+      },
     },
     { $sort: { date: -1 } },
     // group by user and day
@@ -380,19 +380,19 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
       $group: {
         _id: {
           user_id: '$_id.user_id',
-          weekday: '$weekday'
+          weekday: '$weekday',
         },
         solutions: { $push: '$$ROOT' },
-        date: { $first: '$date' }
-      }
+        date: { $first: '$date' },
+      },
     },
     {
       $lookup: {
         from: 'users',
         localField: '_id.user_id',
         foreignField: '_id',
-        as: 'user'
-      }
+        as: 'user',
+      },
     },
     { $unwind: '$user' },
     {
@@ -402,9 +402,9 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
         profile_picture_url: '$user.profile_picture_url',
         _id: false,
         date: true,
-        solutions: true
-      }
-    }
+        solutions: true,
+      },
+    },
   ]);
 
   const weeklySolutionsByDate = _.chain(weeklySolutions)
@@ -436,7 +436,7 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
 
   return {
     count: weeklySolutionsByDate.length,
-    rows: weeklySolutionsByDate
+    rows: weeklySolutionsByDate,
   };
 }
 
@@ -444,5 +444,5 @@ export default {
   create,
   findAll,
   findAllFromUserId,
-  weeklyProgress
+  weeklyProgress,
 };

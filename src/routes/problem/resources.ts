@@ -64,7 +64,7 @@ export async function findProblems(
 export function present(req: Request, res: Response): void {
   res.status(200);
   res.json({
-    problem: ProblemPresenter.present(req.body.problem)
+    problem: ProblemPresenter.present(req.body.problem),
   });
 }
 
@@ -72,6 +72,6 @@ export function presentAll(req: Request, res: Response): void {
   res.status(200);
   res.json({
     count: req.body.count,
-    problems: ProblemPresenter.presentAll(req.body.rows)
+    problems: ProblemPresenter.presentAll(req.body.rows),
   });
 }

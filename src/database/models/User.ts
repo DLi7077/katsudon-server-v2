@@ -24,68 +24,68 @@ export const userSchema: Schema<UserAttributes> = new Schema<UserAttributes>({
   _id: {
     type: Schema.Types.ObjectId,
     required: true,
-    auto: true
+    auto: true,
   },
   username: {
     type: String,
     required: true,
     unique: true,
     index: true,
-    partialFilterExpression: { verified: true }
+    partialFilterExpression: { verified: true },
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    index: true
+    index: true,
   },
   profile_picture_url: {
     type: String,
-    required: false
+    required: false,
   },
   profile_banner_url: {
     type: String,
-    required: false
+    required: false,
   },
   biography: {
     type: String,
-    required: false
+    required: false,
   },
   following: {
     type: [mongoose.Schema.Types.ObjectId],
     required: true,
-    ref: 'User'
+    ref: 'User',
   },
   followers: {
     type: [mongoose.Schema.Types.ObjectId],
     required: true,
-    ref: 'User'
+    ref: 'User',
   },
   solved: {
     type: [mongoose.Schema.Types.ObjectId],
     required: true,
-    ref: 'Problem'
+    ref: 'Problem',
   },
   verified: {
     type: Boolean,
-    required: true
+    required: true,
   },
   created_at: {
     type: Date,
-    required: true
+    required: true,
   },
   updated_at: {
     type: Date,
-    required: false
+    required: false,
   },
   deleted_at: {
     type: Date,
-    required: false
-  }
+    required: false,
+  },
 });
 
 userSchema.index(

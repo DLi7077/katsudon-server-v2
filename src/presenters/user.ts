@@ -17,5 +17,5 @@ function presentLogin(user: any): any {
 export default {
   present,
   presentAll,
-  presentLogin
+  presentLogin,
 };
