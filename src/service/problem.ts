@@ -7,10 +7,17 @@ import { ProblemAttributes } from '../database/models/Problem';
  * @returns {Promise<any>} Promise of created problem
  */
 async function create(attributes: ProblemAttributes): Promise<any> {
-  return Models.Problem.findOneAndUpdate({ id: attributes.id }, attributes, {
-    upsert: true,
-    new: true
-  });
+  return Models.Problem.findOneAndUpdate(
+    { id: attributes.id },
+    {
+      ...attributes,
+      created_at: new Date(),
+    },
+    {
+      upsert: true,
+      new: true,
+    }
+  );
 }
 
 /**
@@ -48,7 +55,7 @@ async function findAll(queryParams: any): Promise<any> {
 
   return {
     count: problems.length,
-    rows: problems
+    rows: problems,
   };
 }
 
@@ -56,5 +63,5 @@ export default {
   create,
   addSolver,
   findById,
-  findAll
+  findAll,
 };

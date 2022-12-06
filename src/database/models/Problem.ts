@@ -11,6 +11,7 @@ export interface ProblemAttributes {
   description: string;
   tags?: string[];
   solved_by?: ObjectId[];
+  created_at: Date;
 }
 
 export type ProblemModelDefinition = Model<ProblemAttributes>;
@@ -20,41 +21,45 @@ export const ProblemSchema: Schema<ProblemAttributes> =
     _id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      auto: true
+      auto: true,
     },
     id: {
       type: Number,
       required: true,
-      unique: true
+      unique: true,
     },
     title: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     url: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     difficulty: {
       type: String,
       enum: ProblemDifficulties,
-      required: false
+      required: false,
     },
     description: {
       type: String,
-      required: true
+      required: true,
     },
     tags: {
       type: [String],
-      required: false
+      required: false,
     },
     solved_by: {
       type: [mongoose.Schema.Types.ObjectId],
       required: false,
-      ref: 'User'
-    }
+      ref: 'User',
+    },
+    created_at: {
+      type: Date,
+      required: true,
+    },
   });
 
 ProblemSchema.index({ id: 1 });
