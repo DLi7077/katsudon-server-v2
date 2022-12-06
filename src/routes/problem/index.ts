@@ -4,7 +4,7 @@ import {
   findById,
   findProblems,
   present,
-  presentAll
+  presentAll,
 } from './resources';
 
 const router = express.Router();

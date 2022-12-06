@@ -20,7 +20,7 @@ async function create(attributes: UserAttributes): Promise<any> {
     followers: [],
     following: [],
     verified: false,
-    created_at: new Date()
+    created_at: new Date(),
   });
 }
 
@@ -34,12 +34,12 @@ async function update(attributes: UserAttributes): Promise<any> {
 
   const updateAttributes = {
     ..._.omit(attributes, '_id'),
-    updated_at: new Date()
+    updated_at: new Date(),
   };
 
   return Models.User.findByIdAndUpdate({ _id }, updateAttributes, {
     runValidators: true,
-    new: true
+    new: true,
   });
 }
 
@@ -182,16 +182,16 @@ async function publicProfile(queryParams: any): Promise<any> {
   );
 
   const userDetails = await Models.User.findOne({
-    ...compiledQuery
+    ...compiledQuery,
   })
     .populate({ path: 'solved' })
     .populate({
       path: 'following',
-      select: ['username', 'profile_picture_url']
+      select: ['username', 'profile_picture_url'],
     })
     .populate({
       path: 'followers',
-      select: ['username', 'profile_picture_url']
+      select: ['username', 'profile_picture_url'],
     });
 
   return userDetails;
@@ -220,7 +220,7 @@ async function findAll(queryParams: any): Promise<any> {
 
   return {
     count: users.length,
-    rows: users
+    rows: users,
   };
 }
 
@@ -236,5 +236,5 @@ export default {
   publicProfile,
   findByEmail,
   findById,
-  findAll
+  findAll,
 };

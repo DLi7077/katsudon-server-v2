@@ -16,16 +16,16 @@ async function addProblemIDtoSolutions() {
           from: 'problems',
           localField: 'problem_id',
           foreignField: 'id',
-          as: 'problem'
-        }
+          as: 'problem',
+        },
       },
       {
         $project: {
           _id: true,
-          problem: { $first: '$problem' }
-        }
+          problem: { $first: '$problem' },
+        },
       },
-      { $limit: 10 }
+      { $limit: 10 },
     ]);
 
     if (allSolutions.length === 0) break;
@@ -39,7 +39,7 @@ async function addProblemIDtoSolutions() {
         await Models.Solution.findByIdAndUpdate(
           solutionId,
           {
-            problem_id: problemId
+            problem_id: problemId,
           },
           { upsert: true }
         ).catch(next);
@@ -52,7 +52,7 @@ async function addProblemIDtoSolutions() {
   }
 
   return {
-    msg: 'done'
+    msg: 'done',
   };
 }
 
@@ -62,13 +62,13 @@ async function addProblemIDtoSolutions() {
 async function addCodeLengthFieldToSolution() {
   while (true) {
     const allSolutions = await Models.Solution.find({
-      solution_length: null
+      solution_length: null,
     })
       .limit(10)
       .then((solutions: SolutionAttributes[]) =>
         _.map(solutions, (solution) => ({
           solution_id: _.get(solution, '_id'),
-          solution_length: getCodeLength(_.get(solution, 'solution_code'))
+          solution_length: getCodeLength(_.get(solution, 'solution_code')),
         }))
       );
 
@@ -96,15 +96,15 @@ async function addCodeLengthFieldToSolution() {
   }
 
   const missedDocuments = await Models.Solution.find({
-    solution_length: null
+    solution_length: null,
   });
 
   return {
-    missed_documents: missedDocuments
+    missed_documents: missedDocuments,
   };
 }
 
 export default {
   addProblemIDtoSolutions,
-  addCodeLengthFieldToSolution
+  addCodeLengthFieldToSolution,
 };

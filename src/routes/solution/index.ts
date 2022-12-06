@@ -5,7 +5,7 @@ import {
   findAllSolutionsFromUserId,
   findWeeklyProgressSolutions,
   present,
-  presentAll
+  presentAll,
 } from './resources';
 
 import { authenticateToken } from '../user/resources';

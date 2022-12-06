@@ -6,7 +6,7 @@ const db: Database = {
   mongoose,
   User: models.UserModel,
   Problem: models.ProblemModel,
-  Solution: models.SolutionModel
+  Solution: models.SolutionModel,
 };
 
 export default db;

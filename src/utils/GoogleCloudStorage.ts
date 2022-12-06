@@ -3,7 +3,7 @@ import path from 'path';
 
 const serviceKey = path.join(__dirname, '../../src/utils/katsudon-cloud.json');
 const storage = new Storage({
-  keyFilename: serviceKey
+  keyFilename: serviceKey,
 });
 
 export default storage;

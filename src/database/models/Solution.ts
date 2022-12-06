@@ -21,50 +21,50 @@ export const SolutionSchema: Schema<SolutionAttributes> = new Schema({
   _id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    auto: true
+    auto: true,
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: false,
-    ref: 'User'
+    ref: 'User',
   },
   problem_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'Problem'
+    ref: 'Problem',
   },
   solution_language: {
     type: String,
-    required: true
+    required: true,
   },
   solution_code: {
     type: String,
-    required: true
+    required: true,
   },
   solution_length: {
     type: Number,
-    required: true
+    required: true,
   },
   runtime_ms: {
     type: Number,
-    required: false
+    required: false,
   },
   memory_usage_mb: {
     type: Number,
-    required: false
+    required: false,
   },
   failed: {
     type: Boolean,
-    required: false
+    required: false,
   },
   error: {
     type: String,
-    required: false
+    required: false,
   },
   created_at: {
     type: Date,
-    required: true
-  }
+    required: true,
+  },
 });
 
 SolutionSchema.index({ user_id: 1 });
