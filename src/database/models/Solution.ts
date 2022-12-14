@@ -7,7 +7,6 @@ export interface SolutionAttributes {
   problem_id: ObjectId;
   solution_language: string;
   solution_code: string;
-  solution_length: number;
   failed?: boolean;
   error?: string;
   runtime_ms?: number;
@@ -39,10 +38,6 @@ export const SolutionSchema: Schema<SolutionAttributes> = new Schema({
   },
   solution_code: {
     type: String,
-    required: true,
-  },
-  solution_length: {
-    type: Number,
     required: true,
   },
   runtime_ms: {
