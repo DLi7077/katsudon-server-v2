@@ -322,7 +322,7 @@ async function weeklyProgress(currentUserId: ObjectId | null): Promise<any> {
   const userFollowing: ObjectId[] = !!currentUserId
     ? await Models.User.findById(currentUserId).then((user: any) => [
         ...user.following,
-        user._id,
+        _.get(user, '_id'),
       ])
     : [];
 
