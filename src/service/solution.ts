@@ -288,7 +288,7 @@ async function findAll(queryParams: any): Promise<any> {
  * @param {ObjectId} currentUserId ID of the current user
  * @returns {Promise<any>} Promise of weekly progress solutions
  */
-async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
+async function weeklyProgress(currentUserId: ObjectId | null): Promise<any> {
   // no longer used, will be changed to past 7 days instead of current week
 
   // const currentYearWeek: number = computeTrueWeek();
@@ -319,9 +319,12 @@ async function weeklyProgress(currentUserId: ObjectId): Promise<any> {
     };
   }
 
-  const userFollowing: ObjectId[] = await Models.User.findById(
-    currentUserId
-  ).then((user: any) => [...user.following, currentUserId]);
+  const userFollowing: ObjectId[] = currentUserId
+    ? await Models.User.findById(currentUserId).then((user: any) => [
+        ...user.following,
+        currentUserId,
+      ])
+    : [];
 
   const RANDOM_USER_COUNT = 10;
   const randomUserIds: ObjectId[] = await Models.User.aggregate([
