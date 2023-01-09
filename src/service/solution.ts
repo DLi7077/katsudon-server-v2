@@ -319,14 +319,14 @@ async function weeklyProgress(currentUserId: ObjectId | null): Promise<any> {
     };
   }
 
-  const userFollowing: ObjectId[] = currentUserId
+  const userFollowing: ObjectId[] = !!currentUserId
     ? await Models.User.findById(currentUserId).then((user: any) => [
         ...user.following,
-        currentUserId,
+        user._id,
       ])
     : [];
 
-  const RANDOM_USER_COUNT = 10;
+  const RANDOM_USER_COUNT = 20;
   const randomUserIds: ObjectId[] = await Models.User.aggregate([
     { $match: { _id: { $nin: userFollowing } } },
     { $sample: { size: RANDOM_USER_COUNT } },
