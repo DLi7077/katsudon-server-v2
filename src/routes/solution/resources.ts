@@ -110,7 +110,7 @@ export async function findWeeklyProgressSolutions(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const currentUserId: any = _.get(req.currentUser, '_id');
+  const currentUserId: any = _.get(req.query, 'user_id');
   await SolutionService.weeklyProgress(currentUserId)
     .then((result: any) => {
       req.body = result;
